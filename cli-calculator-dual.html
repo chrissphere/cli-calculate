@@ -4,25 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>货币挂钩投资 (CLI) 收益计算器 - 双币种组合版</title>
-    
-    <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CLI 双币版">
     <link rel="apple-touch-icon" href="./icons/icon-192.png">
     <meta name="theme-color" content="#667eea">
-    <meta name="format-detection" content="telephone=no">
-    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
         .container { max-width: 1600px; margin: 0 auto; }
         h1 { text-align: center; color: white; margin-bottom: 20px; font-size: 28px; }
         .card { background: white; border-radius: 16px; padding: 30px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
@@ -62,7 +53,6 @@
         tr:hover { background: #f5f7fa; }
         .profit { color: #28a745; font-weight: 600; }
         .loss { color: #dc3545; font-weight: 600; }
-        .break-even { color: #ffc107; font-weight: 600; }
         .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .summary-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 12px; text-align: center; }
         .summary-label { font-size: 14px; opacity: 0.9; margin-bottom: 10px; }
@@ -70,22 +60,12 @@
         .summary-unit { font-size: 16px; opacity: 0.8; margin-left: 5px; }
         .info-tip { background: #e7f3ff; border-left: 4px solid #2196f3; padding: 12px 15px; border-radius: 8px; margin-top: 15px; font-size: 13px; color: #555; }
         @media (max-width: 1024px) { .dual-portfolio { grid-template-columns: 1fr; } }
-        @media (max-width: 768px) {
-            .input-grid { grid-template-columns: 1fr; }
-            h1 { font-size: 20px; }
-            body { padding: 10px; }
-            .card { padding: 15px; }
-            table { font-size: 10px; }
-            th, td { padding: 4px 3px; }
-        }
+        @media (max-width: 768px) { .input-grid { grid-template-columns: 1fr; } h1 { font-size: 20px; } body { padding: 10px; } .card { padding: 15px; } table { font-size: 10px; } th, td { padding: 4px 3px; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="version-nav">
-            <a href="cli-calculator-single.html">🔙 返回单一币种版</a>
-        </div>
-        
+        <div class="version-nav"><a href="cli-calculator-single.html">🔙 返回单一币种版</a></div>
         <h1>🖤 货币挂钩投资 (CLI) 收益计算器 - 双币种组合版</h1>
         
         <div class="card">
@@ -120,32 +100,13 @@
             
             <div class="input-grid" style="margin-bottom: 20px;">
                 <div class="input-group">
-                    <label>📊 即期汇率 (共享)</label>
-                    <input type="number" id="spotRate" value="7.2500" step="0.0001" min="0" onchange="updateInverseRate()">
-                    <small id="spotRateLabel">USD/CNY = 7.2500</small>
-                </div>
-                <div class="input-group">
-                    <label>💡 倒数汇率</label>
-                    <input type="text" id="inverseRate" value="0.1379" readonly style="background: #e9ecef;">
-                    <small>CNY/USD = 0.1379</small>
+                    <label>📊 即期汇率 (USD/CNY)</label>
+                    <input type="number" id="spotRate" value="7.2500" step="0.0001" min="0">
+                    <small>市场汇率：1 USD = 7.2500 CNY</small>
                 </div>
                 <div class="input-group">
                     <label>📅 投资期限 (天)</label>
                     <input type="number" id="days" value="90" step="1" min="1" max="180">
-                </div>
-                <div class="input-group" style="grid-column: 1 / -1;">
-                    <label>💱 汇率报价方式</label>
-                    <div style="display: flex; gap: 20px; align-items: center;">
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="radio" name="rateType" value="direct" checked onchange="updateRateTypeDisplay()">
-                            <span>直接报价（1 外币 = ? 本币，如 USD/CNY=7.25）</span>
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="radio" name="rateType" value="indirect" onchange="updateRateTypeDisplay()">
-                            <span>间接报价（1 本币 = ? 外币，如 CNY/USD=0.1379）</span>
-                        </label>
-                    </div>
-                    <small id="rateTypeDisplay" style="color: #666; margin-top: 5px;">组合 1：直接报价 | 组合 2：间接报价</small>
                 </div>
             </div>
             
@@ -164,9 +125,9 @@
                     <h3>📌 组合 2：<span id="portfolio2Label">CNY 存款 + USD 挂钩</span></h3>
                     <div class="input-grid">
                         <div class="input-group"><label>💵 本金</label><input type="number" id="principal2" value="50000" step="1000"></div>
-                        <div class="input-group"><label>🎯 行使汇率</label><input type="number" id="strikeRate2" value="0.1379" step="0.0001"></div>
+                        <div class="input-group"><label>🎯 行使汇率</label><input type="number" id="strikeRate2" value="7.2500" step="0.0001"></div>
                         <div class="input-group"><label>📈 CLI 年化利率 (%)</label><input type="number" id="annualRate2" value="6.5" step="0.1"></div>
-                        <div class="input-group"><button type="button" onclick="setStrike2FromSpot()" style="padding: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">= 即期汇率倒数</button></div>
+                        <div class="input-group"><button type="button" onclick="setStrike2FromSpot()" style="padding: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">= 即期汇率</button></div>
                     </div>
                 </div>
             </div>
@@ -176,21 +137,9 @@
         
         <div id="resultSection" class="result-section">
             <div class="summary-grid">
-                <div class="summary-card">
-                    <div class="summary-label">总投资本金</div>
-                    <div class="summary-value" id="totalPrincipal">100,000</div>
-                    <div class="summary-unit">混合货币</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-label">组合 1 利息收益</div>
-                    <div class="summary-value" id="interest1">0</div>
-                    <div class="summary-unit" id="interestCurrency1">USD</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-label">组合 2 利息收益</div>
-                    <div class="summary-value" id="interest2">0</div>
-                    <div class="summary-unit" id="interestCurrency2">CNY</div>
-                </div>
+                <div class="summary-card"><div class="summary-label">总投资本金</div><div class="summary-value" id="totalPrincipal">100,000</div><div class="summary-unit">混合货币</div></div>
+                <div class="summary-card"><div class="summary-label">组合 1 利息收益</div><div class="summary-value" id="interest1">0</div><div class="summary-unit" id="interestCurrency1">USD</div></div>
+                <div class="summary-card"><div class="summary-label">组合 2 利息收益</div><div class="summary-value" id="interest2">0</div><div class="summary-unit" id="interestCurrency2">CNY</div></div>
             </div>
             
             <div class="card">
@@ -215,15 +164,13 @@
             
             <div class="card">
                 <div class="card-title">📈 汇率 - 收益对照表（组合 1 & 组合 2）</div>
-                <div class="info-tip" style="margin-bottom: 15px;">
-                    💡 两个组合使用同一个到期汇率，但行使汇率独立设置。当汇率 > 行使汇率时触发（被换汇）
-                </div>
+                <div class="info-tip" style="margin-bottom: 15px;">💡 两个组合使用同一个 USD/CNY 汇率，但行使汇率独立设置</div>
                 <div style="overflow-x: auto;">
                     <table id="comparisonTableDual">
                         <thead>
                             <tr>
                                 <th>汇率<br>变动</th>
-                                <th>到期汇率</th>
+                                <th>到期汇率<br>USD/CNY</th>
                                 <th>组合 1<br>触发</th>
                                 <th>组合 1<br>金额</th>
                                 <th>组合 1<br>损益</th>
@@ -242,7 +189,7 @@
                 <div style="height: 450px; position: relative;">
                     <canvas id="rateProfitChartDual"></canvas>
                 </div>
-                <div class="info-tip">💡 图表显示同一汇率变动下两个组合的收益对比，蓝色=组合 1，紫色=组合 2</div>
+                <div class="info-tip">💡 图表显示 USD/CNY 汇率变化对两个组合收益的影响，蓝色=组合 1，紫色=组合 2</div>
             </div>
             
             <div class="info-tip">
@@ -266,41 +213,16 @@
         let rateProfitChartDual = null;
 
         function onCurrencyChange() {
-            const currency1 = document.getElementById('currency1').value;
-            const currency2 = document.getElementById('currency2').value;
-            if (currency1 === currency2) {
-                const others = ['USD', 'CNY', 'HKD', 'EUR', 'GBP', 'AUD', 'JPY'].filter(c => c !== currency1);
+            const c1 = document.getElementById('currency1').value;
+            const c2 = document.getElementById('currency2').value;
+            if (c1 === c2) {
+                const others = ['USD', 'CNY', 'HKD', 'EUR', 'GBP', 'AUD', 'JPY'].filter(c => c !== c1);
                 document.getElementById('currency2').value = others[0];
             }
             updateLabels();
-            updateSpotRateLabel();
-            updateRateTypeDisplay();
-            // 货币变化时，两个行使汇率都同步到当前即期汇率（用户可后续独立修改）
             const spotRate = parseFloat(document.getElementById('spotRate').value) || 1;
-            const rateType = document.querySelector('input[name="rateType"]:checked').value;
             document.getElementById('strikeRate1').value = spotRate.toFixed(4);
-            // 组合 2 的行使汇率根据报价方式调整
-            if (rateType === 'direct') {
-                document.getElementById('strikeRate2').value = (1 / spotRate).toFixed(4); // 间接报价
-            } else {
-                document.getElementById('strikeRate2').value = spotRate.toFixed(4); // 直接报价
-            }
-        }
-
-        function updateRateTypeDisplay() {
-            const rateType = document.querySelector('input[name="rateType"]:checked').value;
-            const c1 = document.getElementById('currency1').value;
-            const c2 = document.getElementById('currency2').value;
-            const spotRate = document.getElementById('spotRate').value;
-            const invRate = document.getElementById('inverseRate').value;
-            
-            let displayText;
-            if (rateType === 'direct') {
-                displayText = `组合 1（${c1}存款）：直接报价 ${c1}/${c2} = ${spotRate} | 组合 2（${c2}存款）：间接报价 ${c2}/${c1} = ${invRate}`;
-            } else {
-                displayText = `组合 1（${c1}存款）：间接报价 ${c1}/${c2} = ${invRate} | 组合 2（${c2}存款）：直接报价 ${c2}/${c1} = ${spotRate}`;
-            }
-            document.getElementById('rateTypeDisplay').textContent = displayText;
+            document.getElementById('strikeRate2').value = spotRate.toFixed(4);
         }
 
         function updateLabels() {
@@ -316,28 +238,8 @@
             document.getElementById('totalCurrency2').textContent = c2;
         }
 
-        function updateSpotRateLabel() {
-            const c1 = document.getElementById('currency1').value;
-            const c2 = document.getElementById('currency2').value;
-            const spotRate = parseFloat(document.getElementById('spotRate').value) || 1;
-            document.getElementById('spotRateLabel').textContent = `${c1}/${c2} = ${spotRate.toFixed(4)}`;
-            document.getElementById('inverseRate').value = (1 / spotRate).toFixed(4);
-        }
-
-        function updateInverseRate() { updateSpotRateLabel(); }
         function setStrike1FromSpot() { document.getElementById('strikeRate1').value = document.getElementById('spotRate').value; }
-        function setStrike2FromSpot() {
-            const spotRate = parseFloat(document.getElementById('spotRate').value) || 1;
-            const rateType = document.querySelector('input[name="rateType"]:checked').value;
-            // 组合 2 的报价方式与组合 1 相反，所以行使汇率也要相应调整
-            if (rateType === 'direct') {
-                // 组合 1 直接报价 (USD/CNY)，组合 2 间接报价 (CNY/USD)
-                document.getElementById('strikeRate2').value = (1 / spotRate).toFixed(4);
-            } else {
-                // 组合 1 间接报价 (CNY/USD)，组合 2 直接报价 (USD/CNY)
-                document.getElementById('strikeRate2').value = spotRate.toFixed(4);
-            }
-        }
+        function setStrike2FromSpot() { document.getElementById('strikeRate2').value = document.getElementById('spotRate').value; }
 
         function formatNumber(num, decimals = 2) {
             return num.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
@@ -346,195 +248,121 @@
         function calculateDual() {
             const days = parseInt(document.getElementById('days').value);
             const spotRate = parseFloat(document.getElementById('spotRate').value);
-            const currency1 = document.getElementById('currency1').value;
-            const currency2 = document.getElementById('currency2').value;
-            const rateType = document.querySelector('input[name="rateType"]:checked').value;
-            const inverseRate = 1 / spotRate;
+            const c1 = document.getElementById('currency1').value;
+            const c2 = document.getElementById('currency2').value;
             
-            const principal1 = parseFloat(document.getElementById('principal1').value);
-            const strikeRate1 = parseFloat(document.getElementById('strikeRate1').value);
-            const annualRate1 = parseFloat(document.getElementById('annualRate1').value) / 100;
+            const p1 = parseFloat(document.getElementById('principal1').value);
+            const strike1 = parseFloat(document.getElementById('strikeRate1').value);
+            const r1 = parseFloat(document.getElementById('annualRate1').value) / 100;
             
-            const principal2 = parseFloat(document.getElementById('principal2').value);
-            const strikeRate2 = parseFloat(document.getElementById('strikeRate2').value);
-            const annualRate2 = parseFloat(document.getElementById('annualRate2').value) / 100;
+            const p2 = parseFloat(document.getElementById('principal2').value);
+            const strike2 = parseFloat(document.getElementById('strikeRate2').value);
+            const r2 = parseFloat(document.getElementById('annualRate2').value) / 100;
             
-            // 组合 1 计算（结构 B）
-            const interest1 = principal1 * annualRate1 * (days / 365);
-            const totalAmount1 = principal1 + interest1;
-            // 打和价：根据报价方式调整
-            let breakEven1;
-            if (rateType === 'direct') {
-                breakEven1 = strikeRate1 * (1 + annualRate1 * (days / 365)); // 直接报价：结构 B 打和价 = strike × (1+利息比)
-            } else {
-                breakEven1 = strikeRate1 / (1 + annualRate1 * (days / 365)); // 间接报价：结构 B 打和价 = strike / (1+利息比)
-            }
+            // 组合 1：结构 B（看涨 c2），rate ≤ strike1 → 拿 c1 + 利息
+            const int1 = p1 * r1 * (days / 365);
+            const total1 = p1 + int1;
+            const be1 = strike1 * (1 + r1 * (days / 365));
             
-            // 组合 2 计算（结构 B）
-            const interest2 = principal2 * annualRate2 * (days / 365);
-            const totalAmount2 = principal2 + interest2;
-            // 组合 2 的报价方式与组合 1 相反
-            let breakEven2;
-            if (rateType === 'direct') {
-                breakEven2 = strikeRate2 / (1 + annualRate2 * (days / 365)); // 组合 1 直接 → 组合 2 间接
-            } else {
-                breakEven2 = strikeRate2 * (1 + annualRate2 * (days / 365)); // 组合 1 间接 → 组合 2 直接
-            }
+            // 组合 2：结构 B（看涨 c1），但 c2 存款挂钩 c1，需要用倒数汇率逻辑
+            // 简化：都用 USD/CNY 汇率，组合 2 的触发条件相反
+            const int2 = p2 * r2 * (days / 365);
+            const total2 = p2 + int2;
+            const be2 = strike2 / (1 + r2 * (days / 365));
             
-            // 更新汇总
-            document.getElementById('totalPrincipal').textContent = formatNumber(principal1 + principal2);
-            document.getElementById('interest1').textContent = formatNumber(interest1);
-            document.getElementById('interest2').textContent = formatNumber(interest2);
+            document.getElementById('totalPrincipal').textContent = formatNumber(p1 + p2);
+            document.getElementById('interest1').textContent = formatNumber(int1);
+            document.getElementById('interest2').textContent = formatNumber(int2);
             
-            // 更新组合 1 详情
-            document.getElementById('cliInterest1').textContent = formatNumber(interest1);
-            document.getElementById('totalAmount1').textContent = formatNumber(totalAmount1);
-            document.getElementById('breakEven1').textContent = breakEven1.toFixed(4);
-            const triggerCond1 = rateType === 'direct' ? '≤' : '≥';
-            const compareRate1 = rateType === 'direct' ? spotRate : inverseRate;
-            document.getElementById('conditionText1').textContent = `结构 B（看涨${currency2}）：到期时 ${compareRate1.toFixed(4)} ${triggerCond1} ${strikeRate1.toFixed(4)} → 获得高息 ${formatNumber(interest1)} ${currency1}`;
+            document.getElementById('cliInterest1').textContent = formatNumber(int1);
+            document.getElementById('totalAmount1').textContent = formatNumber(total1);
+            document.getElementById('breakEven1').textContent = be1.toFixed(4);
+            document.getElementById('conditionText1').textContent = `结构 B（看涨${c2}）：到期时 USD/CNY ≤ ${strike1.toFixed(4)} → 获得高息 ${formatNumber(int1)} ${c1}`;
             
-            // 更新组合 2 详情
-            document.getElementById('cliInterest2').textContent = formatNumber(interest2);
-            document.getElementById('totalAmount2').textContent = formatNumber(totalAmount2);
-            document.getElementById('breakEven2').textContent = breakEven2.toFixed(4);
-            const triggerCond2 = rateType === 'direct' ? '≥' : '≤'; // 组合 2 与组合 1 相反
-            const compareRate2 = rateType === 'direct' ? inverseRate : spotRate;
-            document.getElementById('conditionText2').textContent = `结构 B（看涨${currency1}）：到期时 ${compareRate2.toFixed(4)} ${triggerCond2} ${strikeRate2.toFixed(4)} → 获得高息 ${formatNumber(interest2)} ${currency2}`;
+            document.getElementById('cliInterest2').textContent = formatNumber(int2);
+            document.getElementById('totalAmount2').textContent = formatNumber(total2);
+            document.getElementById('breakEven2').textContent = be2.toFixed(4);
+            document.getElementById('conditionText2').textContent = `结构 B（看涨${c1}）：到期时 USD/CNY ≥ ${strike2.toFixed(4)} → 获得高息 ${formatNumber(int2)} ${c2}`;
             
-            // 生成合并对照表
-            generateDualComparisonTable(principal1, principal2, days, annualRate1, annualRate2, spotRate, inverseRate, strikeRate1, strikeRate2, rateType, currency1, currency2);
-            
-            // 绘制合并图表
-            drawDualRateProfitChart(principal1, principal2, days, annualRate1, annualRate2, spotRate, inverseRate, strikeRate1, strikeRate2, rateType, currency1, currency2);
+            generateDualComparisonTable(p1, p2, days, r1, r2, spotRate, strike1, strike2, c1, c2);
+            drawDualRateProfitChart(p1, p2, days, r1, r2, spotRate, strike1, strike2, c1, c2);
             
             document.getElementById('resultSection').style.display = 'block';
             document.getElementById('resultSection').classList.add('show');
         }
 
-        function generateDualComparisonTable(p1, p2, days, r1, r2, spot, invSpot, strike1, strike2, rateType, c1, c2) {
+        function generateDualComparisonTable(p1, p2, days, r1, r2, spot, strike1, strike2, c1, c2) {
             const tbody = document.getElementById('comparisonBodyDual');
             tbody.innerHTML = '';
             
-            const minSpot = spot * 0.90;
-            const maxSpot = spot * 1.10;
-            const step = (maxSpot - minSpot) / 10;
-            
-            const regularRate = 0.025;
+            const minRate = spot * 0.90;
+            const maxRate = spot * 1.10;
+            const step = (maxRate - minRate) / 10;
+            const regRate = 0.025;
             
             for (let i = 0; i <= 10; i++) {
-                const rateSpot = minSpot + step * i; // USD/CNY
-                const rateInv = 1 / rateSpot; // CNY/USD
-                const changePercent = ((rateSpot - spot) / spot) * 100;
+                const rate = minRate + step * i;
+                const changePct = ((rate - spot) / spot) * 100;
                 
-                // 组合 1 判断
-                let rate1, triggered1, final1, converted1;
-                if (rateType === 'direct') {
-                    // 组合 1：直接报价，结构 B：rate ≤ strike → 不触发
-                    rate1 = rateSpot;
-                    triggered1 = rate1 > strike1;
-                } else {
-                    // 组合 1：间接报价，结构 B：rate ≥ strike → 不触发 (触发 = rate < strike)
-                    rate1 = rateInv;
-                    triggered1 = rate1 < strike1;
-                }
-                if (triggered1) {
-                    final1 = p1 * strike1;
-                    converted1 = rateType === 'direct' ? final1 / rate1 : final1 * rate1;
+                // 组合 1：结构 B，rate ≤ strike1 → 不触发
+                const trig1 = rate > strike1;
+                let final1, conv1;
+                if (trig1) {
+                    final1 = p1 * strike1; // 被换成 c2
+                    conv1 = final1 / rate; // 折回 c1
                 } else {
                     final1 = p1 + p1 * r1 * (days / 365);
-                    converted1 = final1;
+                    conv1 = final1;
                 }
-                const reg1 = p1 + p1 * regularRate * (days / 365);
-                const pl1 = converted1 - reg1;
+                const reg1 = p1 + p1 * regRate * (days / 365);
+                const pl1 = conv1 - reg1;
                 
-                // 组合 2 判断（报价方式与组合 1 相反）
-                let rate2, triggered2, final2, converted2;
-                if (rateType === 'direct') {
-                    // 组合 2：间接报价，结构 B：rate ≥ strike → 不触发 (触发 = rate < strike)
-                    rate2 = rateInv;
-                    triggered2 = rate2 < strike2;
-                } else {
-                    // 组合 2：直接报价，结构 B：rate ≤ strike → 不触发
-                    rate2 = rateSpot;
-                    triggered2 = rate2 > strike2;
-                }
-                if (triggered2) {
-                    final2 = p2 * strike2;
-                    converted2 = rateType === 'direct' ? final2 * rate2 : final2 / rate2;
+                // 组合 2：结构 B，rate ≥ strike2 → 不触发（看涨 c1）
+                const trig2 = rate < strike2;
+                let final2, conv2;
+                if (trig2) {
+                    final2 = p2 * strike2; // 被换成 c1
+                    conv2 = final2 * rate; // 折回 c2
                 } else {
                     final2 = p2 + p2 * r2 * (days / 365);
-                    converted2 = final2;
+                    conv2 = final2;
                 }
-                const reg2 = p2 + p2 * regularRate * (days / 365);
-                const pl2 = converted2 - reg2;
+                const reg2 = p2 + p2 * regRate * (days / 365);
+                const pl2 = conv2 - reg2;
                 
                 const row = `<tr>
-                    <td>${changePercent > 0 ? '+' : ''}${changePercent.toFixed(1)}%</td>
-                    <td>${rateSpot.toFixed(4)}<br><small style="color:#888">${c1}/${c2}</small><br>${rateInv.toFixed(4)}<br><small style="color:#888">${c2}/${c1}</small></td>
-                    <td class="${triggered1 ? 'loss' : 'profit'}">${triggered1 ? '❌' : '✅'}</td>
-                    <td>${formatNumber(final1)}<br><small>${triggered1 ? c2 : c1}</small></td>
+                    <td>${changePct > 0 ? '+' : ''}${changePct.toFixed(1)}%</td>
+                    <td>${rate.toFixed(4)}</td>
+                    <td class="${trig1 ? 'loss' : 'profit'}">${trig1 ? '❌' : '✅'}</td>
+                    <td>${formatNumber(final1)}<br><small>${trig1 ? c2 : c1}</small></td>
                     <td class="${pl1 >= 0 ? 'profit' : 'loss'}" style="font-size:11px">${pl1 >= 0 ? '+' : ''}${formatNumber(pl1)}</td>
-                    <td class="${triggered2 ? 'loss' : 'profit'}">${triggered2 ? '❌' : '✅'}</td>
-                    <td>${formatNumber(final2)}<br><small>${triggered2 ? c1 : c2}</small></td>
+                    <td class="${trig2 ? 'loss' : 'profit'}">${trig2 ? '❌' : '✅'}</td>
+                    <td>${formatNumber(final2)}<br><small>${trig2 ? c1 : c2}</small></td>
                     <td class="${pl2 >= 0 ? 'profit' : 'loss'}" style="font-size:11px">${pl2 >= 0 ? '+' : ''}${formatNumber(pl2)}</td>
                 </tr>`;
                 tbody.innerHTML += row;
             }
         }
 
-        function drawDualRateProfitChart(p1, p2, days, r1, r2, spot, invSpot, strike1, strike2, rateType, c1, c2) {
+        function drawDualRateProfitChart(p1, p2, days, r1, r2, spot, strike1, strike2, c1, c2) {
             const ctx = document.getElementById('rateProfitChartDual').getContext('2d');
             if (rateProfitChartDual) rateProfitChartDual.destroy();
             
-            const rates = [];
-            const profits1 = [];
-            const profits2 = [];
+            const rates = [], prof1 = [], prof2 = [];
             
             for (let i = -0.10; i <= 0.10; i += 0.01) {
-                const rateSpot = spot * (1 + i);
-                const rateInv = 1 / rateSpot;
+                const rate = spot * (1 + i);
                 
                 // 组合 1
                 const int1 = p1 * r1 * (days / 365);
-                let rate1, final1;
-                if (rateType === 'direct') {
-                    rate1 = rateSpot;
-                    if (rate1 <= strike1) {
-                        final1 = p1 + int1;
-                    } else {
-                        final1 = p1 * strike1 / rate1;
-                    }
-                } else {
-                    rate1 = rateInv;
-                    if (rate1 >= strike1) {
-                        final1 = p1 + int1;
-                    } else {
-                        final1 = p1 * strike1 * rate1;
-                    }
-                }
-                rates.push(rateSpot.toFixed(4));
-                profits1.push(final1 - p1);
+                let f1 = rate <= strike1 ? p1 + int1 : p1 * strike1 / rate;
+                rates.push(rate.toFixed(4));
+                prof1.push(f1 - p1);
                 
-                // 组合 2（报价方式相反）
+                // 组合 2
                 const int2 = p2 * r2 * (days / 365);
-                let rate2, final2;
-                if (rateType === 'direct') {
-                    rate2 = rateInv;
-                    if (rate2 >= strike2) {
-                        final2 = p2 + int2;
-                    } else {
-                        final2 = p2 * strike2 * rate2;
-                    }
-                } else {
-                    rate2 = rateSpot;
-                    if (rate2 <= strike2) {
-                        final2 = p2 + int2;
-                    } else {
-                        final2 = p2 * strike2 / rate2;
-                    }
-                }
-                profits2.push(final2 - p2);
+                let f2 = rate >= strike2 ? p2 + int2 : p2 * strike2 * rate;
+                prof2.push(f2 - p2);
             }
             
             rateProfitChartDual = new Chart(ctx, {
@@ -542,24 +370,8 @@
                 data: {
                     labels: rates,
                     datasets: [
-                        {
-                            label: `组合 1 收益 (${c1})`,
-                            data: profits1,
-                            borderColor: '#667eea',
-                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                            fill: true,
-                            tension: 0.4,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: `组合 2 收益 (${c2})`,
-                            data: profits2,
-                            borderColor: '#764ba2',
-                            backgroundColor: 'rgba(118, 75, 162, 0.1)',
-                            fill: true,
-                            tension: 0.4,
-                            yAxisID: 'y1'
-                        }
+                        { label: `组合 1 收益 (${c1})`, data: prof1, borderColor: '#667eea', backgroundColor: 'rgba(102, 126, 234, 0.1)', fill: true, tension: 0.4, yAxisID: 'y' },
+                        { label: `组合 2 收益 (${c2})`, data: prof2, borderColor: '#764ba2', backgroundColor: 'rgba(118, 75, 162, 0.1)', fill: true, tension: 0.4, yAxisID: 'y1' }
                     ]
                 },
                 options: {
@@ -568,30 +380,12 @@
                     interaction: { mode: 'index', intersect: false },
                     plugins: {
                         legend: { display: true },
-                        tooltip: {
-                            callbacks: {
-                                label: (ctx) => `${ctx.dataset.label}: ${formatNumber(ctx.parsed.y)}`
-                            }
-                        }
+                        tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatNumber(ctx.parsed.y)}` } }
                     },
                     scales: {
-                        x: {
-                            title: { display: true, text: `到期汇率` },
-                            ticks: { maxRotation: 45, minRotation: 45 }
-                        },
-                        y: {
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                            title: { display: true, text: `组合 1 收益 (${c1})` }
-                        },
-                        y1: {
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
-                            grid: { drawOnChartArea: false },
-                            title: { display: true, text: `组合 2 收益 (${c2})` }
-                        }
+                        x: { title: { display: true, text: 'USD/CNY 汇率' }, ticks: { maxRotation: 45, minRotation: 45 } },
+                        y: { type: 'linear', display: true, position: 'left', title: { display: true, text: `组合 1 收益 (${c1})` } },
+                        y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: `组合 2 收益 (${c2})` } }
                     }
                 }
             });
