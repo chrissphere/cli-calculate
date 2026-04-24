@@ -140,7 +140,6 @@
         
         <div id="resultSection" class="result-section">
             <div class="summary-grid">
-                <div class="summary-card"><div class="summary-label">总投资本金</div><div class="summary-value" id="totalPrincipal">100,000</div><div class="summary-unit">混合货币</div></div>
                 <div class="summary-card"><div class="summary-label">组合 1 利息收益</div><div class="summary-value" id="interest1">0</div><div class="summary-unit" id="interestCurrency1">USD</div></div>
                 <div class="summary-card"><div class="summary-label">组合 2 利息收益</div><div class="summary-value" id="interest2">0</div><div class="summary-unit" id="interestCurrency2">CNY</div></div>
             </div>
@@ -403,7 +402,6 @@
             // 打和价：c1/c2 汇率下，c2 存款的打和价 = strike2 / (1+利息比)
             const be2 = strike2 / (1 + r2 * (days / 365));
             
-            document.getElementById('totalPrincipal').textContent = formatNumber(p1 + p2);
             document.getElementById('interest1').textContent = formatNumber(int1);
             document.getElementById('interest2').textContent = formatNumber(int2);
             
