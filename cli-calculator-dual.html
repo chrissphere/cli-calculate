@@ -167,13 +167,13 @@
             
             <div class="card">
                 <div class="card-title">📈 汇率 - 收益对照表（组合 1 & 组合 2）</div>
-                <div class="info-tip" style="margin-bottom: 15px;">💡 两个组合使用同一个 USD/CNY 汇率，但行使汇率独立设置</div>
+                <div class="info-tip" style="margin-bottom: 15px;">💡 两个组合使用同一个 <span id="tableRateLabel">USD/CNY</span> 汇率，但行使汇率独立设置</div>
                 <div style="overflow-x: auto;">
                     <table id="comparisonTableDual">
                         <thead>
                             <tr>
                                 <th>汇率<br>变动</th>
-                                <th>到期汇率<br>USD/CNY</th>
+                                <th>到期汇率<br><span id="tableRateHeader">USD/CNY</span></th>
                                 <th>组合 1<br>触发</th>
                                 <th>组合 1<br>金额</th>
                                 <th>组合 1<br>损益</th>
@@ -192,7 +192,7 @@
                 <div style="height: 450px; position: relative;">
                     <canvas id="rateProfitChartDual"></canvas>
                 </div>
-                <div class="info-tip">💡 图表显示 USD/CNY 汇率变化对两个组合收益的影响，蓝色=组合 1，紫色=组合 2</div>
+                <div class="info-tip">💡 图表显示 <span id="chartRateLabel">USD/CNY</span> 汇率变化对两个组合收益的影响，蓝色=组合 1，紫色=组合 2</div>
             </div>
             
             <div class="info-tip">
@@ -347,6 +347,10 @@
             const c1 = document.getElementById('currency1').value;
             const c2 = document.getElementById('currency2').value;
             
+            // 更新表格中的汇率标签
+            document.getElementById('tableRateLabel').textContent = `${c1}/${c2}`;
+            document.getElementById('tableRateHeader').textContent = `${c1}/${c2}`;
+            
             const p1 = parseFloat(document.getElementById('principal1').value);
             const strike1 = parseFloat(document.getElementById('strikeRate1').value);
             const r1 = parseFloat(document.getElementById('annualRate1').value) / 100;
@@ -378,7 +382,10 @@
             document.getElementById('cliInterest2').textContent = formatNumber(int2);
             document.getElementById('totalAmount2').textContent = formatNumber(total2);
             document.getElementById('breakEven2').textContent = be2.toFixed(4);
-            document.getElementById('conditionText2').textContent = `结构 B（看涨${c1}）：到期时 USD/CNY ≥ ${strike2.toFixed(4)} → 获得高息 ${formatNumber(int2)} ${c2}`;
+            document.getElementById('conditionText2').textContent = `结构 B（看涨${c1}）：到期时 ${c1}/${c2} ≥ ${strike2.toFixed(4)} → 获得高息 ${formatNumber(int2)} ${c2}`;
+            
+            // 更新图表标签
+            document.getElementById('chartRateLabel').textContent = `${c1}/${c2}`;
             
             generateDualComparisonTable(p1, p2, days, r1, r2, spotRate, strike1, strike2, c1, c2);
             drawDualRateProfitChart(p1, p2, days, r1, r2, spotRate, strike1, strike2, c1, c2);
@@ -390,6 +397,9 @@
         function generateDualComparisonTable(p1, p2, days, r1, r2, spot, strike1, strike2, c1, c2) {
             const tbody = document.getElementById('comparisonBodyDual');
             tbody.innerHTML = '';
+            
+            // 更新表头汇率标签
+            document.getElementById('tableRateHeader').textContent = `${c1}/${c2}`;
             
             const minRate = spot * 0.90;
             const maxRate = spot * 1.10;
@@ -436,7 +446,7 @@
                     <td>${formatNumber(final2)}<br><small>${trig2 ? c1 : c2}</small></td>
                     <td class="${pl2 >= 0 ? 'profit' : 'loss'}" style="font-size:11px">${pl2 >= 0 ? '+' : ''}${formatNumber(pl2)}</td>
                 </tr>`;
-                tbody.innerHTML += row;
+                tbody.insertAdjacentHTML('beforeend', row);
             }
         }
 
@@ -445,6 +455,9 @@
             if (rateProfitChartDual) rateProfitChartDual.destroy();
             
             const rates = [], prof1 = [], prof2 = [];
+            
+            // 更新图表 X 轴标签
+            document.getElementById('chartRateLabel').textContent = `${c1}/${c2}`;
             
             for (let i = -0.10; i <= 0.10; i += 0.01) {
                 const rate = spot * (1 + i);
@@ -479,7 +492,7 @@
                         tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatNumber(ctx.parsed.y)}` } }
                     },
                     scales: {
-                        x: { title: { display: true, text: 'USD/CNY 汇率' }, ticks: { maxRotation: 45, minRotation: 45 } },
+                        x: { title: { display: true, text: `${c1}/${c2} 汇率` }, ticks: { maxRotation: 45, minRotation: 45 } },
                         y: { type: 'linear', display: true, position: 'left', title: { display: true, text: `组合 1 收益 (${c1})` } },
                         y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: `组合 2 收益 (${c2})` } }
                     }
