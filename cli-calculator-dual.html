@@ -11,13 +11,11 @@
     <!-- iOS PWA 特定标签 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="CLI 计算器">
+    <meta name="apple-mobile-web-app-title" content="CLI 双币版">
     <link rel="apple-touch-icon" href="./icons/icon-192.png">
     
     <!-- 主题色 -->
     <meta name="theme-color" content="#667eea">
-    
-    <!-- 禁用 Safari 自动调整字体 -->
     <meta name="format-detection" content="telephone=no">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -29,24 +27,31 @@
             min-height: 100vh;
             padding: 20px;
         }
-        .container { max-width: 1200px; margin: 0 auto; }
-        h1 { text-align: center; color: white; margin-bottom: 30px; font-size: 28px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .container { max-width: 1600px; margin: 0 auto; }
+        h1 { text-align: center; color: white; margin-bottom: 20px; font-size: 28px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
         .card { background: white; border-radius: 16px; padding: 30px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
         .card-title { font-size: 20px; font-weight: 600; color: #333; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #667eea; }
-        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        
+        /* 版本切换按钮 */
+        .version-nav { text-align: center; margin-bottom: 20px; }
+        .version-nav a { display: inline-block; padding: 12px 30px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s; }
+        .version-nav a:hover { background: rgba(255,255,255,0.3); }
+        
+        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
         .input-group { display: flex; flex-direction: column; }
         .input-group label { font-size: 14px; font-weight: 500; color: #555; margin-bottom: 8px; }
         .input-group input, .input-group select { padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; transition: border-color 0.3s; }
         .input-group input:focus, .input-group select:focus { outline: none; border-color: #667eea; }
-        .rate-info { background: #e7f3ff; border-left: 4px solid #2196f3; padding: 12px 15px; border-radius: 8px; margin-top: 8px; font-size: 14px; color: #1976d2; }
-        .rate-info strong { color: #0d47a1; }
-        .structure-selector { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
-        .structure-btn { flex: 1; min-width: 280px; padding: 18px 20px; border: 2px solid #e0e0e0; border-radius: 10px; background: white; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.3s; text-align: left; line-height: 1.5; }
-        .structure-btn.active { border-color: #667eea; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-        .structure-btn:hover { border-color: #667eea; }
-        .structure-formula { display: block; margin-top: 8px; font-size: 13px; opacity: 0.9; font-weight: 400; }
+        
+        /* 双币种投资组合 - 左右排列 */
+        .dual-portfolio { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+        .portfolio-card { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 20px; border-radius: 12px; border-left: 4px solid #667eea; }
+        .portfolio-card:nth-child(2) { border-left-color: #764ba2; }
+        .portfolio-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 15px; color: #333; display: flex; align-items: center; gap: 8px; }
+        
         .calculate-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: 600; cursor: pointer; margin-top: 20px; transition: transform 0.2s, box-shadow 0.2s; }
         .calculate-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4); }
+        
         .result-section { display: none; }
         .result-section.show { display: block; }
         .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
@@ -58,55 +63,39 @@
         .highlight .result-value { color: white; }
         .result-unit { font-size: 14px; color: #888; margin-left: 5px; }
         .highlight .result-unit { color: rgba(255,255,255,0.8); }
+        
         .condition-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; }
         .condition-box.success { background: #d4edda; border-left-color: #28a745; }
-        .condition-box.danger { background: #f8d7da; border-left-color: #dc3545; }
         .condition-title { font-weight: 600; margin-bottom: 10px; color: #333; }
         .condition-text { font-size: 14px; color: #555; line-height: 1.6; }
+        
         table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
         th, td { padding: 8px 10px; text-align: center; border-bottom: 1px solid #e0e0e0; white-space: nowrap; }
         th { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 600; font-size: 12px; }
         tr:hover { background: #f5f7fa; }
         .profit { color: #28a745; font-weight: 600; }
         .loss { color: #dc3545; font-weight: 600; }
-        .break-even { color: #ffc107; font-weight: 600; }
-        .comparison-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
-        .comparison-card { background: #f8f9fa; padding: 20px; border-radius: 10px; border: 2px solid #e0e0e0; }
-        .comparison-card.winner { border-color: #28a745; background: linear-gradient(135deg, #d4edda 0%, #f8f9fa 100%); }
-        .comparison-title { font-size: 16px; font-weight: 600; margin-bottom: 15px; color: #333; }
-        .comparison-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e0e0e0; }
-        .comparison-item:last-child { border-bottom: none; }
-        .comparison-label { color: #666; }
-        .comparison-value { font-weight: 600; color: #333; }
-        .info-tip { background: #e7f3ff; border-left: 4px solid #2196f3; padding: 12px 15px; border-radius: 8px; margin-top: 15px; font-size: 13px; color: #555; line-height: 1.5; }
-        .rate-direction-badge { display: inline-block; padding: 6px 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 10px; }
-        .radio-group { display: flex; gap: 15px; flex-wrap: wrap; }
-        .radio-option { display: flex; align-items: center; gap: 8px; padding: 10px 15px; background: #f8f9fa; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
-        .radio-option:hover { background: #e9ecef; }
-        .radio-option input[type="radio"] { width: 18px; height: 18px; cursor: pointer; }
-        .card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
-        .card-title { font-size: 18px; font-weight: 600; color: #333; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #667eea; }
-        .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px; }
-        .result-item { padding: 15px; border-radius: 10px; text-align: center; }
-        .result-label { font-size: 12px; margin-bottom: 6px; }
-        .result-value { font-size: 20px; font-weight: 700; }
         
-        /* iOS 安全区域适配 */
+        /* 汇总结果卡片 */
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .summary-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 12px; text-align: center; }
+        .summary-label { font-size: 14px; opacity: 0.9; margin-bottom: 10px; }
+        .summary-value { font-size: 28px; font-weight: 700; }
+        .summary-unit { font-size: 16px; opacity: 0.8; margin-left: 5px; }
+        
+        .info-tip { background: #e7f3ff; border-left: 4px solid #2196f3; padding: 12px 15px; border-radius: 8px; margin-top: 15px; font-size: 13px; color: #555; line-height: 1.5; }
+        
         @supports (padding: max(0px)) {
-            body {
-                padding-left: max(20px, env(safe-area-inset-left));
-                padding-right: max(20px, env(safe-area-inset-right));
-                padding-bottom: max(20px, env(safe-area-inset-bottom));
-            }
-            h1 {
-                padding-top: max(0px, env(safe-area-inset-top));
-            }
+            body { padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+            h1 { padding-top: max(0px, env(safe-area-inset-top)); }
+        }
+        
+        @media (max-width: 1024px) {
+            .dual-portfolio { grid-template-columns: 1fr; }
         }
         
         @media (max-width: 768px) {
             .input-grid { grid-template-columns: 1fr; }
-            .structure-selector { flex-direction: column; }
-            .structure-btn { min-width: 100%; padding: 12px 15px; font-size: 14px; }
             h1 { font-size: 20px; margin-bottom: 20px; }
             body { padding: 10px; }
             .card { padding: 15px; margin-bottom: 10px; }
@@ -117,178 +106,197 @@
             .result-item { padding: 10px; }
             .result-label { font-size: 11px; }
             .result-value { font-size: 16px; }
-            .result-unit { font-size: 12px; }
-            .info-tip { padding: 10px 12px; font-size: 12px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- 版本切换按钮 -->
-        <div style="text-align: center; margin-bottom: 20px;">
-            <a href="cli-calculator-single.html" style="display: inline-block; padding: 12px 30px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">🔙 返回单一币种版</a>
+        <div class="version-nav">
+            <a href="cli-calculator-single.html">🔙 返回单一币种版</a>
         </div>
         
-        <!-- iOS 添加到主屏幕提示 -->
-        <div id="iosInstallTip" style="display: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
-            <strong>📱 添加到主屏幕</strong><br>
-            <small>点击 Safari 底部 <span style="font-size: 18px;">📤</span> 按钮，选择"添加到主屏幕"，即可像 App 一样使用</small>
-            <button onclick="document.getElementById('iosInstallTip').style.display='none'" style="margin-top: 10px; padding: 8px 20px; background: white; color: #667eea; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">知道了</button>
-        </div>
-        
-        <h1>💰 货币挂钩投资 (CLI) 收益计算器</h1>
+        <h1>🖤 货币挂钩投资 (CLI) 收益计算器 - 双币种组合版</h1>
         
         <div class="card">
             <div class="card-title">📝 投资参数设置</div>
             
+            <!-- 货币对选择 -->
             <div class="input-grid" style="margin-bottom: 20px;">
                 <div class="input-group" style="grid-column: 1 / -1;">
-                    <label>📊 汇率报价方式</label>
-                    <div class="radio-group">
-                        <label class="radio-option">
-                            <input type="radio" name="rateType" value="direct" checked onchange="onRateTypeChange()">
-                            <span>直接报价：1 存款货币 = ? 挂钩货币 (USD/CNY)</span>
-                        </label>
-                        <label class="radio-option">
-                            <input type="radio" name="rateType" value="indirect" onchange="onRateTypeChange()">
-                            <span>间接报价：1 挂钩货币 = ? 存款货币 (CNY/USD)</span>
-                        </label>
+                    <label>🔀 货币对</label>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <select id="currency1" onchange="onCurrencyChange()" style="flex: 1; min-width: 200px;">
+                            <option value="USD">USD 美元</option>
+                            <option value="CNY">CNY 人民币</option>
+                            <option value="HKD">HKD 港币</option>
+                            <option value="EUR">EUR 欧元</option>
+                            <option value="GBP">GBP 英镑</option>
+                            <option value="AUD">AUD 澳元</option>
+                            <option value="JPY">JPY 日元</option>
+                        </select>
+                        <span style="font-size: 24px;">↔️</span>
+                        <select id="currency2" onchange="onCurrencyChange()" style="flex: 1; min-width: 200px;">
+                            <option value="CNY">CNY 人民币</option>
+                            <option value="USD">USD 美元</option>
+                            <option value="HKD">HKD 港币</option>
+                            <option value="EUR">EUR 欧元</option>
+                            <option value="GBP">GBP 英镑</option>
+                            <option value="AUD">AUD 澳元</option>
+                            <option value="JPY">JPY 日元</option>
+                        </select>
                     </div>
                 </div>
             </div>
             
-            <div class="structure-selector">
-                <button class="structure-btn" onclick="selectStructure('A')">
-                    📈 结构 A：看跌
-                    <span class="structure-formula" id="structureAFormula">汇率 ≥ 行使汇率 → 拿存款货币</span>
-                </button>
-                <button class="structure-btn active" onclick="selectStructure('B')">
-                    📉 结构 B：看涨
-                    <span class="structure-formula" id="structureBFormula">汇率 ≤ 行使汇率 → 拿存款货币</span>
-                </button>
-            </div>
-
-            <div class="input-grid">
+            <!-- 共享即期汇率 -->
+            <div class="input-grid" style="margin-bottom: 20px;">
                 <div class="input-group">
-                    <label>💵 存款货币本金</label>
-                    <input type="number" id="principal" value="50000" step="1000" min="0">
+                    <label>📊 即期汇率 (共享)</label>
+                    <input type="number" id="spotRate" value="7.2500" step="0.0001" min="0" onchange="updateInverseRate()">
+                    <small style="color: #666; margin-top: 5px;" id="spotRateLabel">USD/CNY = 7.2500</small>
                 </div>
                 <div class="input-group">
-                    <label>🏦 存款货币</label>
-                    <select id="depositCurrency" onchange="onCurrencyChange()">
-                        <option value="USD">USD 美元</option>
-                        <option value="CNY">CNY 人民币</option>
-                        <option value="HKD">HKD 港币</option>
-                        <option value="EUR">EUR 欧元</option>
-                        <option value="GBP">GBP 英镑</option>
-                        <option value="AUD">AUD 澳元</option>
-                        <option value="JPY">JPY 日元</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label>🔄 切换货币</label>
-                    <button type="button" onclick="swapCurrencies()" style="width: 100%; padding: 12px 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;" title="切换存款货币和挂钩货币">🔄 切换存款/挂钩货币</button>
-                </div>
-                <div class="input-group">
-                    <label>🔗 挂钩货币</label>
-                    <select id="linkedCurrency" onchange="onCurrencyChange()">
-                        <option value="CNY">CNY 人民币</option>
-                        <option value="USD">USD 美元</option>
-                        <option value="HKD">HKD 港币</option>
-                        <option value="EUR">EUR 欧元</option>
-                        <option value="GBP">GBP 英镑</option>
-                        <option value="AUD">AUD 澳元</option>
-                        <option value="JPY">JPY 日元</option>
-                    </select>
-                </div>
-                <div class="input-group" style="grid-column: 1 / -1;">
-                    <div class="rate-info">
-                        <span class="rate-direction-badge" id="rateDirectionBadge">USD/CNY</span><br>
-                        <strong id="rateDirectionText">1 存款货币 (USD) = <span id="rateDirectionValue">7.2500</span> 挂钩货币 (CNY)</strong><br>
-                        <small style="display: block; margin-top: 8px; color: #666;">
-                            💡 倒数：1 挂钩货币 (CNY) = <span id="inverseRateDisplay">0.1379</span> 存款货币 (USD)
-                        </small>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label>📊 即期汇率</label>
-                    <input type="number" id="spotRate" value="6.8368" step="0.0001" min="0" oninput="updateInverseRate(); syncStrikeToSpot()">
-                    <small style="color: #888; margin-top: 5px;" id="spotRateHint">直接报价：1 USD = ? CNY</small>
-                    <small style="color: #666; margin-top: 3px;" id="fetchStatus"></small>
-                </div>
-                <div class="input-group">
-                    <label>🎯 行使汇率</label>
-                    <input type="number" id="strikeRate" value="6.8368" step="0.0001" min="0">
-                    <small style="color: #888; margin-top: 5px;">默认等于即期汇率，可手动修改</small>
-                </div>
-                <div class="input-group">
-                    <label>🔄 快速设置</label>
-                    <button type="button" onclick="setStrikeFromSpot()" style="width: 100%; padding: 12px 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;" title="将行使汇率设为即期汇率"> 行使汇率 = 即期汇率</button>
-                </div>
-                <div class="input-group">
-                    <label>📈 年化利率 (%)</label>
-                    <input type="number" id="annualRate" value="5.5" step="0.1" min="0">
+                    <label>💡 倒数汇率</label>
+                    <input type="text" id="inverseRate" value="0.1379" readonly style="background: #e9ecef;">
+                    <small style="color: #666; margin-top: 5px;">CNY/USD = 0.1379</small>
                 </div>
                 <div class="input-group">
                     <label>📅 投资期限 (天)</label>
-                    <input type="number" id="days" value="30" step="1" min="1">
+                    <input type="number" id="days" value="90" step="1" min="1" max="180">
                 </div>
-                <div class="input-group">
-                    <label>🏦 定期存款年利率 (%)</label>
-                    <input type="number" id="regularRate" value="3.5" step="0.1" min="0">
-                    <small style="color: #888; margin-top: 5px;">用于对比 CLI 与定期存款的收益差异</small>
+            </div>
+            
+            <!-- 两个投资组合左右排列 -->
+            <div class="dual-portfolio">
+                <!-- 投资组合 1 -->
+                <div class="portfolio-card">
+                    <h3>📌 组合 1：<span id="portfolio1Label">USD 存款 + CNY 挂钩</span></h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label>💵 本金</label>
+                            <input type="number" id="principal1" value="50000" step="1000" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label>🎯 行使汇率</label>
+                            <input type="number" id="strikeRate1" value="7.2500" step="0.0001" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label>📈 CLI 年化利率 (%)</label>
+                            <input type="number" id="annualRate1" value="6.5" step="0.1" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label>🔄 快速设置</label>
+                            <button type="button" onclick="setStrike1FromSpot()" style="width: 100%; padding: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px;">= 即期汇率</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label>📊 对照表汇率范围 (%)</label>
-                    <input type="number" id="chartRange" value="1" step="0.1" min="0.1" max="10">
-                    <small style="color: #888; margin-top: 5px;">打和价正负百分比，默认 1%</small>
+                
+                <!-- 投资组合 2 -->
+                <div class="portfolio-card">
+                    <h3>📌 组合 2：<span id="portfolio2Label">CNY 存款 + USD 挂钩</span></h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label>💵 本金</label>
+                            <input type="number" id="principal2" value="50000" step="1000" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label>🎯 行使汇率</label>
+                            <input type="number" id="strikeRate2" value="0.1379" step="0.0001" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label>📈 CLI 年化利率 (%)</label>
+                            <input type="number" id="annualRate2" value="6.5" step="0.1" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label>🔄 快速设置</label>
+                            <button type="button" onclick="setStrike2FromSpot()" style="width: 100%; padding: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px;">= 即期汇率倒数</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <button class="calculate-btn" onclick="calculate()">🚀 开始计算</button>
+            <button class="calculate-btn" onclick="calculateDual()">🚀 开始计算</button>
         </div>
-
-        <div class="result-section" id="resultSection">
+        
+        <!-- 结果区域 -->
+        <div id="resultSection" class="result-section">
+            <!-- 汇总结果 -->
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-label">总投资本金</div>
+                    <div class="summary-value" id="totalPrincipal">100,000</div>
+                    <div class="summary-unit">混合货币</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">组合 1 利息收益</div>
+                    <div class="summary-value" id="interest1">0</div>
+                    <div class="summary-unit" id="interestCurrency1">USD</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">组合 2 利息收益</div>
+                    <div class="summary-value" id="interest2">0</div>
+                    <div class="summary-unit" id="interestCurrency2">CNY</div>
+                </div>
+            </div>
+            
+            <!-- 组合 1 详情 -->
             <div class="card">
-                <div class="card-title">📊 核心计算结果</div>
+                <div class="card-title">📌 组合 1 详细结果</div>
                 <div class="result-grid">
                     <div class="result-item highlight">
-                        <div class="result-label">到期利息</div>
-                        <div class="result-value" id="interest">0</div>
-                        <div class="result-unit" id="interestCurrency">USD</div>
+                        <div class="result-label">CLI 利息</div>
+                        <div class="result-value" id="cliInterest1">0</div>
+                        <div class="result-unit" id="currency1Label">USD</div>
                     </div>
-                    <div class="result-item highlight">
+                    <div class="result-item">
                         <div class="result-label">本金 + 利息</div>
-                        <div class="result-value" id="totalAmount">0</div>
-                        <div class="result-unit" id="totalCurrency">USD</div>
+                        <div class="result-value" id="totalAmount1">0</div>
+                        <div class="result-unit" id="totalCurrency1">USD</div>
                     </div>
                     <div class="result-item">
-                        <div class="result-label">日均收益</div>
-                        <div class="result-value" id="dailyIncome">0</div>
-                        <div class="result-unit" id="dailyCurrency">USD</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">实际年化收益率</div>
-                        <div class="result-value" id="actualYield">0</div>
-                        <div class="result-unit">%</div>
+                        <div class="result-label">打和价</div>
+                        <div class="result-value" id="breakEven1">0</div>
+                        <div class="result-unit"></div>
                     </div>
                 </div>
-
-                <div class="condition-box" id="conditionBox">
-                    <div class="condition-title" id="conditionTitle">🎯 触发条件</div>
-                    <div class="condition-text" id="conditionText"></div>
-                </div>
-
-                <div class="info-tip">
-                    💡 <strong>打和价（盈亏平衡点）：</strong> <span id="breakEvenPrice" style="font-weight: 600; color: #2196f3;"></span>
-                    <br><small>当到期汇率等于此价格时，持有存款货币与换汇后的价值相等</small>
+                <div id="conditionBox1" class="condition-box success">
+                    <div class="condition-title">🎯 触发条件</div>
+                    <div class="condition-text" id="conditionText1"></div>
                 </div>
             </div>
-
+            
+            <!-- 组合 2 详情 -->
             <div class="card">
-                <div class="card-title">📈 汇率 - 收益对照表</div>
+                <div class="card-title">📌 组合 2 详细结果</div>
+                <div class="result-grid">
+                    <div class="result-item highlight">
+                        <div class="result-label">CLI 利息</div>
+                        <div class="result-value" id="cliInterest2">0</div>
+                        <div class="result-unit" id="currency2Label">CNY</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">本金 + 利息</div>
+                        <div class="result-value" id="totalAmount2">0</div>
+                        <div class="result-unit" id="totalCurrency2">CNY</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">打和价</div>
+                        <div class="result-value" id="breakEven2">0</div>
+                        <div class="result-unit"></div>
+                    </div>
+                </div>
+                <div id="conditionBox2" class="condition-box success">
+                    <div class="condition-title">🎯 触发条件</div>
+                    <div class="condition-text" id="conditionText2"></div>
+                </div>
+            </div>
+            
+            <!-- 汇率 - 收益对照表（组合 1） -->
+            <div class="card">
+                <div class="card-title">📈 汇率 - 收益对照表（组合 1）</div>
                 <div style="overflow-x: auto;">
-                    <table id="comparisonTable">
+                    <table id="comparisonTable1">
                         <thead>
                             <tr>
                                 <th>汇率变动</th>
@@ -296,42 +304,19 @@
                                 <th>触发情况</th>
                                 <th>最终获得货币</th>
                                 <th>获得金额</th>
-                                <th>折合<span id="depositCurrencyHeader">USD</span></th>
-                                <th>vs 不买 CLI 损益</th>
+                                <th>vs 定期存款</th>
                             </tr>
                         </thead>
-                        <tbody id="comparisonBody"></tbody>
+                        <tbody id="comparisonBody1"></tbody>
                     </table>
                 </div>
-                <div class="info-tip" style="margin-top: 10px;">
-                    📌 表中汇率与上方输入方向一致
-                </div>
             </div>
-
+            
+            <!-- 汇率 - 收益对照表（组合 2） -->
             <div class="card">
-                <div class="card-title">📈 汇率 - 收益关系图</div>
-                <div style="height: 400px; position: relative;">
-                    <canvas id="rateProfitChart"></canvas>
-                </div>
-                <div class="info-tip" style="margin-top: 10px;">
-                    💡 图表显示到期汇率变化对最终收益的影响，绿色区域为盈利，红色区域为亏损
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">📅 投资期限 - 收益关系图</div>
-                <div style="height: 400px; position: relative;">
-                    <canvas id="periodProfitChart"></canvas>
-                </div>
-                <div class="info-tip" style="margin-top: 10px;">
-                    💡 图表显示不同投资期限下的收益变化，包括 CLI 利息和定期存款利息对比
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">📊 敏感性分析</div>
+                <div class="card-title">📈 汇率 - 收益对照表（组合 2）</div>
                 <div style="overflow-x: auto;">
-                    <table id="sensitivityTable">
+                    <table id="comparisonTable2">
                         <thead>
                             <tr>
                                 <th>汇率变动</th>
@@ -339,133 +324,40 @@
                                 <th>触发情况</th>
                                 <th>最终获得货币</th>
                                 <th>获得金额</th>
-                                <th>折合<span id="depositCurrencySensitivity">USD</span></th>
-                                <th>损益</th>
+                                <th>vs 定期存款</th>
                             </tr>
                         </thead>
-                        <tbody id="sensitivityBody"></tbody>
+                        <tbody id="comparisonBody2"></tbody>
                     </table>
                 </div>
+            </div>
+            
+            <!-- 汇率 - 收益关系图（组合 1） -->
+            <div class="card">
+                <div class="card-title">📈 汇率 - 收益关系图（组合 1）</div>
+                <div style="height: 400px; position: relative;">
+                    <canvas id="rateProfitChart1"></canvas>
+                </div>
                 <div class="info-tip" style="margin-top: 10px;">
-                    💡 敏感性分析显示不同汇率情景下的收益情况，帮助评估风险
+                    💡 图表显示到期汇率变化对组合 1 收益的影响
                 </div>
             </div>
-
+            
+            <!-- 汇率 - 收益关系图（组合 2） -->
             <div class="card">
-                <div class="card-title">⚠️ 风险指标</div>
-                <div class="result-grid">
-                    <div class="result-item" id="varItem">
-                        <div class="result-label">VaR (95% 置信度)</div>
-                        <div class="result-value" id="varValue">0</div>
-                        <div class="result-unit" id="varCurrency">USD</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">最大可能亏损</div>
-                        <div class="result-value" id="maxLoss">0</div>
-                        <div class="result-unit" id="maxLossCurrency">USD</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">盈亏比</div>
-                        <div class="result-value" id="profitLossRatio">0</div>
-                        <div class="result-unit">:1</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">风险收益比</div>
-                        <div class="result-value" id="riskRewardRatio">0</div>
-                        <div class="result-unit">%</div>
-                    </div>
+                <div class="card-title">📈 汇率 - 收益关系图（组合 2）</div>
+                <div style="height: 400px; position: relative;">
+                    <canvas id="rateProfitChart2"></canvas>
                 </div>
-                <div class="info-tip">
-                    💡 <strong>VaR (Value at Risk)：</strong>在 95% 置信度下的最大可能亏损<br>
-                    💡 <strong>盈亏比：</strong>潜在盈利与潜在亏损的比率<br>
-                    💡 <strong>风险收益比：</strong>承担单位风险可获得的预期收益
+                <div class="info-tip" style="margin-top: 10px;">
+                    💡 图表显示到期汇率变化对组合 2 收益的影响
                 </div>
             </div>
-
-            <div class="card">
-                <div class="card-title">📈 隐含波动率分析</div>
-                <div class="result-grid">
-                    <div class="result-item">
-                        <div class="result-label">隐含波动率 (年化)</div>
-                        <div class="result-value" id="impliedVolatility">0</div>
-                        <div class="result-unit">%</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">理论期权费</div>
-                        <div class="result-value" id="theoreticalPremium">0</div>
-                        <div class="result-unit" id="premiumCurrency">USD</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">CLI 超额收益</div>
-                        <div class="result-value" id="cliExcessReturn">0</div>
-                        <div class="result-unit" id="excessCurrency">USD</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">盈亏平衡概率</div>
-                        <div class="result-value" id="breakEvenProbability">0</div>
-                        <div class="result-unit">%</div>
-                    </div>
-                </div>
-                <div class="info-tip">
-                    💡 <strong>隐含波动率：</strong>市场定价中隐含的汇率波动预期<br>
-                    💡 <strong>理论期权费：</strong>根据 Black-Scholes 模型计算的期权理论价格<br>
-                    💡 <strong>CLI 超额收益：</strong>相比定期存款的额外收益（即期权费收入）<br>
-                    💡 <strong>盈亏平衡概率：</strong>到期时获得存款货币的概率
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">⚖️ 买 CLI vs 不买 CLI 收益对比</div>
-                <div class="comparison-grid">
-                    <div class="comparison-card" id="cliCard">
-                        <div class="comparison-title">📊 购买 CLI</div>
-                        <div class="comparison-item">
-                            <span class="comparison-label">本金</span>
-                            <span class="comparison-value" id="cliPrincipal"></span>
-                        </div>
-                        <div class="comparison-item">
-                            <span class="comparison-label">利息收入</span>
-                            <span class="comparison-value profit" id="cliInterest"></span>
-                        </div>
-                        <div class="comparison-item">
-                            <span class="comparison-label">最终获得</span>
-                            <span class="comparison-value" id="cliTotal"></span>
-                        </div>
-                        <div class="comparison-item">
-                            <span class="comparison-label">年化收益率</span>
-                            <span class="comparison-value profit" id="cliYield"></span>
-                        </div>
-                    </div>
-                    <div class="comparison-card" id="noCliCard">
-                        <div class="comparison-title">💰 不买 CLI（定期存款）</div>
-                        <div class="comparison-item">
-                            <span class="comparison-label">本金</span>
-                            <span class="comparison-value" id="noCliPrincipal"></span>
-                        </div>
-                        <div class="comparison-item">
-                            <span class="comparison-label">利息收入</span>
-                            <span class="comparison-value" id="noCliInterest"></span>
-                        </div>
-                        <div class="comparison-item">
-                            <span class="comparison-label">最终获得</span>
-                            <span class="comparison-value" id="noCliTotal"></span>
-                        </div>
-                        <div class="comparison-item">
-                            <span class="comparison-label">年化收益率</span>
-                            <span class="comparison-value" id="noCliYield"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="comparison-item" style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; color: white;">
-                    <span class="comparison-label" style="color: rgba(255,255,255,0.9);">🎯 CLI 额外收益</span>
-                    <span class="comparison-value" id="extraBenefit" style="color: white; font-size: 20px;"></span>
-                </div>
-            </div>
-
+            
             <div class="info-tip">
                 <strong>⚠️ 风险提示：</strong><br>
                 1. CLI 产品并非保本，若汇率朝不利方向变动，可能损失本金<br>
-                2. 最高收益为约定利息，但潜在亏损可能超过利息收入<br>
+                2. 两个组合独立计算，风险分散但需注意总风险敞口<br>
                 3. 投资前请确保理解产品条款，并根据自身风险承受能力决策<br>
                 4. 本计算器仅供参考，实际收益以银行结算为准
             </div>
@@ -484,936 +376,241 @@
     </script>
     
     <script>
-        let currentStructure = 'B'; // 默认结构 B：看涨挂钩货币
-        let lastRateType = 'direct'; // 记录上次的报价方式
+        let rateProfitChart1 = null;
+        let rateProfitChart2 = null;
 
-        function selectStructure(structure) {
-            currentStructure = structure;
-            document.querySelectorAll('.structure-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-        }
-
-        function onRateTypeChange() {
-            const oldRateType = lastRateType;
-            const newRateType = getRateType();
+        // 货币变化
+        function onCurrencyChange() {
+            const currency1 = document.getElementById('currency1').value;
+            const currency2 = document.getElementById('currency2').value;
             
-            updateStructureButtons();
-            
-            // 报价方式变化时，同步转换汇率
-            if (oldRateType !== newRateType) {
-                const spotRateInput = document.getElementById('spotRate');
-                const currentRate = parseFloat(spotRateInput.value);
-                if (currentRate > 0) {
-                    const newRate = 1 / currentRate;
-                    spotRateInput.value = newRate.toFixed(4);
-                    updateInverseRate();
-                    syncStrikeToSpot(); // 同步更新行使汇率
-                }
+            // 确保两个货币不同
+            if (currency1 === currency2) {
+                const otherCurrencies = ['USD', 'CNY', 'HKD', 'EUR', 'GBP', 'AUD', 'JPY'].filter(c => c !== currency1);
+                document.getElementById('currency2').value = otherCurrencies[0];
             }
             
-            lastRateType = newRateType;
+            updateLabels();
+            updateSpotRateLabel();
+            
+            // 同步更新行使汇率
+            const spotRate = parseFloat(document.getElementById('spotRate').value) || 1;
+            document.getElementById('strikeRate1').value = spotRate.toFixed(4);
+            document.getElementById('strikeRate2').value = (1 / spotRate).toFixed(4);
+        }
+
+        function updateLabels() {
+            const currency1 = document.getElementById('currency1').value;
+            const currency2 = document.getElementById('currency2').value;
+            
+            document.getElementById('portfolio1Label').textContent = `${currency1}存款 + ${currency2}挂钩`;
+            document.getElementById('portfolio2Label').textContent = `${currency2}存款 + ${currency1}挂钩`;
+            document.getElementById('interestCurrency1').textContent = currency1;
+            document.getElementById('interestCurrency2').textContent = currency2;
+            document.getElementById('currency1Label').textContent = currency1;
+            document.getElementById('currency2Label').textContent = currency2;
+            document.getElementById('totalCurrency1').textContent = currency1;
+            document.getElementById('totalCurrency2').textContent = currency2;
+        }
+
+        function updateSpotRateLabel() {
+            const currency1 = document.getElementById('currency1').value;
+            const currency2 = document.getElementById('currency2').value;
+            const spotRate = parseFloat(document.getElementById('spotRate').value) || 1;
+            
+            document.getElementById('spotRateLabel').textContent = `${currency1}/${currency2} = ${spotRate.toFixed(4)}`;
+            document.getElementById('inverseRate').value = (1 / spotRate).toFixed(4);
+        }
+
+        function updateInverseRate() {
+            updateSpotRateLabel();
+        }
+
+        function setStrike1FromSpot() {
+            const spotRate = document.getElementById('spotRate').value;
+            document.getElementById('strikeRate1').value = spotRate;
+        }
+
+        function setStrike2FromSpot() {
+            const spotRate = parseFloat(document.getElementById('spotRate').value) || 1;
+            document.getElementById('strikeRate2').value = (1 / spotRate).toFixed(4);
         }
 
         function formatNumber(num, decimals = 2) {
             return num.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
         }
 
-        function getRateType() {
-            return document.querySelector('input[name="rateType"]:checked').value;
-        }
-
-        function updateStructureButtons() {
-            const rateType = getRateType();
-            const depositCurrency = document.getElementById('depositCurrency').value;
-            const linkedCurrency = document.getElementById('linkedCurrency').value;
-            
-            // 获取货币中文名
-            const currencyNames = {
-                'USD': '美元', 'CNY': '人民币', 'HKD': '港币',
-                'EUR': '欧元', 'GBP': '英镑', 'AUD': '澳元', 'JPY': '日元'
-            };
-            const linkedCurrencyName = currencyNames[linkedCurrency] || linkedCurrency;
-            
-            if (rateType === 'direct') {
-                // 直接报价：1 存款货币 = ? 挂钩货币
-                // 汇率上升 = 挂钩货币贬值，汇率≥行使 → 看跌挂钩货币
-                document.getElementById('structureAFormula').textContent = `汇率 ≥ 行使汇率 → 拿${depositCurrency}`;
-                document.getElementById('structureBFormula').textContent = `汇率 ≤ 行使汇率 → 拿${depositCurrency}`;
-                document.querySelector('.structure-btn:nth-child(1) .structure-formula').previousSibling.textContent = `看跌${linkedCurrencyName} `;
-                document.querySelector('.structure-btn:nth-child(2) .structure-formula').previousSibling.textContent = `看涨${linkedCurrencyName} `;
-            } else {
-                // 间接报价：1 挂钩货币 = ? 存款货币
-                // 汇率上升 = 挂钩货币升值，汇率≤行使 → 看跌挂钩货币
-                document.getElementById('structureAFormula').textContent = `汇率 ≤ 行使汇率 → 拿${depositCurrency}`;
-                document.getElementById('structureBFormula').textContent = `汇率 ≥ 行使汇率 → 拿${depositCurrency}`;
-                document.querySelector('.structure-btn:nth-child(1) .structure-formula').previousSibling.textContent = `看跌${linkedCurrencyName} `;
-                document.querySelector('.structure-btn:nth-child(2) .structure-formula').previousSibling.textContent = `看涨${linkedCurrencyName} `;
-            }
-            
-            updateRateDirection();
-        }
-
-        function onCurrencyChange() {
-            const oldRateType = lastRateType;
-            const newRateType = getRateType();
-            
-            updateRateDirection();
-            updateStructureButtons();
-            
-            // 报价方式变化时，同步转换汇率
-            if (oldRateType !== newRateType) {
-                const spotRateInput = document.getElementById('spotRate');
-                const currentRate = parseFloat(spotRateInput.value);
-                if (currentRate > 0) {
-                    const newRate = 1 / currentRate;
-                    spotRateInput.value = newRate.toFixed(4);
-                    updateInverseRate();
-                    syncStrikeToSpot(); // 同步更新行使汇率
-                }
-            }
-            
-            fetchLiveRate();
-            lastRateType = newRateType;
-        }
-
-        function updateRateDirection() {
-            const depositCurrency = document.getElementById('depositCurrency').value;
-            const linkedCurrency = document.getElementById('linkedCurrency').value;
-            const rateType = getRateType();
-            lastRateType = rateType; // 更新记录
-            
-            if (rateType === 'direct') {
-                document.getElementById('rateDirectionBadge').textContent = `${depositCurrency}/${linkedCurrency}`;
-                document.getElementById('rateDirectionText').innerHTML = `1 存款货币 (${depositCurrency}) = <span id="rateDirectionValue">${document.getElementById('spotRate').value}</span> 挂钩货币 (${linkedCurrency})`;
-                document.getElementById('spotRateHint').textContent = `直接报价：1 ${depositCurrency} = ? ${linkedCurrency}`;
-            } else {
-                document.getElementById('rateDirectionBadge').textContent = `${linkedCurrency}/${depositCurrency}`;
-                document.getElementById('rateDirectionText').innerHTML = `1 挂钩货币 (${linkedCurrency}) = <span id="rateDirectionValue">${document.getElementById('spotRate').value}</span> 存款货币 (${depositCurrency})`;
-                document.getElementById('spotRateHint').textContent = `间接报价：1 ${linkedCurrency} = ? ${depositCurrency}`;
-            }
-            updateInverseRate();
-        }
-
-        function updateInverseRate() {
-            const spotRate = parseFloat(document.getElementById('spotRate').value);
-            if (spotRate > 0) {
-                const inverseRate = 1 / spotRate;
-                document.getElementById('inverseRateDisplay').textContent = formatNumber(inverseRate, 4);
-                const rateValueEl = document.getElementById('rateDirectionValue');
-                if (rateValueEl) rateValueEl.textContent = formatNumber(spotRate, 4);
-            }
-        }
-
-        async function fetchLiveRate() {
-            const depositCurrency = document.getElementById('depositCurrency').value;
-            const linkedCurrency = document.getElementById('linkedCurrency').value;
-            const statusEl = document.getElementById('fetchStatus');
-            const rateType = getRateType();
-            
-            statusEl.textContent = '⏳ 正在获取汇率...';
-            statusEl.style.color = '#666';
-            
-            try {
-                // 真实汇率数据 - 统一使用直接报价格式 (1 存款货币 = ? 挂钩货币)
-                // 数据来源：tradingeconomics.com (2026-04-23)
-                const mockRates = {
-                    'USDCNY': 6.8368,  // USD/CNY = 6.8368 (真实汇率)
-                    'CNYUSD': 0.1463,  // 1/6.8368
-                    'AUDUSD': 0.7139,  // AUD/USD = 0.7139 (真实汇率)
-                    'USDAUD': 1.4007,  // 1/0.7139
-                    'EURUSD': 1.0850,
-                    'USDEUR': 0.9217,
-                    'GBPUSD': 1.2650,
-                    'USDGBP': 0.7905,
-                    'USDJPY': 149.50,
-                    'JPYUSD': 0.0067,
-                    'USDCAD': 1.3600,
-                    'CADUSD': 0.7353,
-                    'NZDUSD': 0.5950,
-                    'USDNZD': 1.6807,
-                    'AUDCNY': 4.9000,  // AUD/CNY ≈ 0.7139 * 6.8368
-                    'CNYAUD': 0.2041,
-                    'EURCNY': 7.4180,  // EUR/CNY ≈ 1.0850 * 6.8368
-                    'CNYEUR': 0.1348,
-                    'GBPCNY': 8.6500,  // GBP/CNY ≈ 1.2650 * 6.8368
-                    'CNYGBP': 0.1156,
-                    'HKDUSD': 0.1282,
-                    'USDHKD': 7.8000
-                };
-                
-                const pairKey = `${depositCurrency}${linkedCurrency}`;
-                let rate = mockRates[pairKey];
-                
-                if (!rate) {
-                    statusEl.textContent = `⚠️ 暂不支持 ${pairKey}，请手动输入`;
-                    statusEl.style.color = '#f57c00';
-                    return;
-                }
-                
-                // 根据报价方式调整显示的汇率
-                if (rateType === 'indirect') {
-                    rate = 1 / rate;
-                }
-                
-                document.getElementById('spotRate').value = rate.toFixed(4);
-                updateInverseRate();
-                syncStrikeToSpot(); // 同步更新行使汇率
-                statusEl.textContent = `✅ 已更新 ${depositCurrency}/${linkedCurrency} = ${rate.toFixed(4)}`;
-                statusEl.style.color = '#28a745';
-                setTimeout(() => { statusEl.textContent = ''; }, 3000);
-            } catch (error) {
-                statusEl.textContent = `❌ 获取失败：${error.message}`;
-                statusEl.style.color = '#dc3545';
-            }
-        }
-
-        function calculate() {
-            const principal = parseFloat(document.getElementById('principal').value);
-            const depositCurrency = document.getElementById('depositCurrency').value;
-            const linkedCurrency = document.getElementById('linkedCurrency').value;
-            const spotRate = parseFloat(document.getElementById('spotRate').value);
-            const strikeRate = parseFloat(document.getElementById('strikeRate').value);
-            const annualRate = parseFloat(document.getElementById('annualRate').value) / 100;
+        // 双币种计算
+        function calculateDual() {
             const days = parseInt(document.getElementById('days').value);
-            const regularRate = parseFloat(document.getElementById('regularRate').value) / 100;
-            const chartRangePercent = parseFloat(document.getElementById('chartRange').value) / 100;
-            const rateType = getRateType();
-
-            if (principal <= 0 || spotRate <= 0 || strikeRate <= 0 || annualRate <= 0 || days <= 0) { alert('请输入有效的数值！'); return; }
-
-            const interest = principal * annualRate * (days / 365);
-            const totalAmount = principal + interest;
-            const interestRatio = interest / principal;
+            const spotRate = parseFloat(document.getElementById('spotRate').value);
+            const currency1 = document.getElementById('currency1').value;
+            const currency2 = document.getElementById('currency2').value;
             
-            // 打和价计算 - 根据报价方式和结构
-            // 直接报价：结构 A 打和价 = 行使汇率/(1+利息比)，结构 B 打和价 = 行使汇率×(1+利息比)
-            // 间接报价：相反
-            let breakEvenPrice;
-            if (rateType === 'direct') {
-                if (currentStructure === 'A') {
-                    breakEvenPrice = strikeRate / (1 + interestRatio);
-                } else {
-                    breakEvenPrice = strikeRate * (1 + interestRatio);
-                }
-            } else {
-                if (currentStructure === 'A') {
-                    breakEvenPrice = strikeRate * (1 + interestRatio);
-                } else {
-                    breakEvenPrice = strikeRate / (1 + interestRatio);
-                }
-            }
-
-            document.getElementById('interest').textContent = formatNumber(interest);
-            document.getElementById('interestCurrency').textContent = depositCurrency;
-            document.getElementById('totalAmount').textContent = formatNumber(totalAmount);
-            document.getElementById('totalCurrency').textContent = depositCurrency;
-            document.getElementById('dailyIncome').textContent = formatNumber(interest / days);
-            document.getElementById('dailyCurrency').textContent = depositCurrency;
-            document.getElementById('actualYield').textContent = formatNumber(annualRate * 100, 3);
-            document.getElementById('breakEvenPrice').textContent = formatNumber(breakEvenPrice, 4);
-
-            const conditionBox = document.getElementById('conditionBox');
-            const conditionTitle = document.getElementById('conditionTitle');
-            const conditionText = document.getElementById('conditionText');
-
-            const rateNotation = rateType === 'direct' ? `${depositCurrency}/${linkedCurrency}` : `${linkedCurrency}/${depositCurrency}`;
+            // 组合 1 参数
+            const principal1 = parseFloat(document.getElementById('principal1').value);
+            const strikeRate1 = parseFloat(document.getElementById('strikeRate1').value);
+            const annualRate1 = parseFloat(document.getElementById('annualRate1').value) / 100;
             
-            // 获取货币中文名
-            const currencyNames = {
-                'USD': '美元', 'CNY': '人民币', 'HKD': '港币',
-                'EUR': '欧元', 'GBP': '英镑', 'AUD': '澳元', 'JPY': '日元'
-            };
-            const linkedCurrencyName = currencyNames[linkedCurrency] || linkedCurrency;
+            // 组合 2 参数
+            const principal2 = parseFloat(document.getElementById('principal2').value);
+            const strikeRate2 = parseFloat(document.getElementById('strikeRate2').value);
+            const annualRate2 = parseFloat(document.getElementById('annualRate2').value) / 100;
             
-            // 根据报价方式确定触发条件
-            let structureATrigger, structureBTrigger;
-            if (rateType === 'direct') {
-                structureATrigger = '≥';
-                structureBTrigger = '≤';
-            } else {
-                structureATrigger = '≤';
-                structureBTrigger = '≥';
-            }
+            // 计算组合 1
+            const cliInterest1 = principal1 * annualRate1 * (days / 365);
+            const totalAmount1 = principal1 + cliInterest1;
+            const breakEven1 = strikeRate1 * (1 + annualRate1 * (days / 365));
             
-            if (currentStructure === 'A') {
-                conditionTitle.textContent = `📈 结构 A：看跌${linkedCurrencyName}（汇率 ${structureATrigger} 行使汇率）`;
-                conditionBox.className = 'condition-box success';
-                conditionText.innerHTML = `
-                    <strong>触发条件（被强行换汇）：</strong>到期汇率 ${structureATrigger === '≥' ? '<' : '>'} ${formatNumber(strikeRate, 4)} (${rateNotation})<br>
-                    <strong>结果：</strong><br>
-                    • 若 <strong>汇率 ${structureATrigger} ${formatNumber(strikeRate, 4)}</strong>：获得 <strong>${formatNumber(totalAmount)} ${depositCurrency}</strong>（本金 + 利息）✅<br>
-                    • 若 <strong>汇率 ${structureATrigger === '≥' ? '<' : '>'} ${formatNumber(strikeRate, 4)}</strong>：获得 <strong>${formatNumber(totalAmount)} ${depositCurrency}</strong> 等值的 <strong>${linkedCurrency}</strong> ⚠️（被换汇）
-                `;
-            } else {
-                conditionTitle.textContent = `📉 结构 B：看涨${linkedCurrencyName}（汇率 ${structureBTrigger} 行使汇率）`;
-                conditionBox.className = 'condition-box';
-                conditionText.innerHTML = `
-                    <strong>触发条件（被强行换汇）：</strong>到期汇率 ${structureBTrigger === '≤' ? '>' : '<'} ${formatNumber(strikeRate, 4)} (${rateNotation})<br>
-                    <strong>结果：</strong><br>
-                    • 若 <strong>汇率 ${structureBTrigger} ${formatNumber(strikeRate, 4)}</strong>：获得 <strong>${formatNumber(totalAmount)} ${depositCurrency}</strong>（本金 + 利息）✅<br>
-                    • 若 <strong>汇率 ${structureBTrigger === '≤' ? '>' : '<'} ${formatNumber(strikeRate, 4)}</strong>：获得 <strong>${formatNumber(totalAmount)} ${depositCurrency}</strong> 等值的 <strong>${linkedCurrency}</strong> ⚠️（被换汇）
-                `;
-            }
-
-            generateComparisonTable(principal, totalAmount, spotRate, strikeRate, breakEvenPrice, days, annualRate, depositCurrency, linkedCurrency, rateType, regularRate, chartRangePercent);
-            updateComparison(principal, interest, totalAmount, annualRate, days, depositCurrency, regularRate);
+            // 计算组合 2
+            const cliInterest2 = principal2 * annualRate2 * (days / 365);
+            const totalAmount2 = principal2 + cliInterest2;
+            const breakEven2 = strikeRate2 * (1 + annualRate2 * (days / 365));
             
-            // 计算 regularTotal 用于图表
-            const regularTotalForChart = principal + principal * regularRate * (days / 365);
-            drawRateProfitChart(principal, totalAmount, strikeRate, breakEvenPrice, depositCurrency, linkedCurrency, rateType, regularTotalForChart, chartRangePercent);
+            // 更新汇总结果
+            document.getElementById('totalPrincipal').textContent = formatNumber(principal1 + principal2);
+            document.getElementById('interest1').textContent = formatNumber(cliInterest1);
+            document.getElementById('interest2').textContent = formatNumber(cliInterest2);
             
-            // 新增：敏感性分析、风险指标、隐含波动率
-            calculateSensitivityAnalysis(principal, totalAmount, spotRate, strikeRate, depositCurrency, linkedCurrency, rateType, regularTotalForChart);
-            calculateRiskMetrics(principal, totalAmount, spotRate, strikeRate, breakEvenPrice, depositCurrency, linkedCurrency, rateType, regularTotalForChart, interest, days);
-            calculateImpliedVolatility(principal, totalAmount, spotRate, strikeRate, depositCurrency, rateType, regularTotalForChart, interest, days, annualRate);
+            // 更新组合 1 详情
+            document.getElementById('cliInterest1').textContent = formatNumber(cliInterest1);
+            document.getElementById('totalAmount1').textContent = formatNumber(totalAmount1);
+            document.getElementById('breakEven1').textContent = breakEven1.toFixed(4);
+            document.getElementById('conditionText1').textContent = `结构 B（看涨${currency2}）：到期时 ${spotRate.toFixed(4)} ≤ ${strikeRate1.toFixed(4)} → 获得高息 ${formatNumber(cliInterest1)} ${currency1}`;
             
-            // 新增：投资期限 - 收益关系图
-            drawPeriodProfitChart(principal, spotRate, strikeRate, depositCurrency, linkedCurrency, rateType, annualRate, regularRate);
-
+            // 更新组合 2 详情
+            document.getElementById('cliInterest2').textContent = formatNumber(cliInterest2);
+            document.getElementById('totalAmount2').textContent = formatNumber(totalAmount2);
+            document.getElementById('breakEven2').textContent = breakEven2.toFixed(4);
+            const inverseRate = 1 / spotRate;
+            document.getElementById('conditionText2').textContent = `结构 B（看涨${currency1}）：到期时 ${inverseRate.toFixed(4)} ≤ ${strikeRate2.toFixed(4)} → 获得高息 ${formatNumber(cliInterest2)} ${currency2}`;
+            
+            // 生成对照表
+            generateComparisonTable(1, principal1, days, annualRate1, spotRate, strikeRate1, currency1, currency2);
+            generateComparisonTable(2, principal2, days, annualRate2, inverseRate, strikeRate2, currency2, currency1);
+            
+            // 绘制图表
+            drawRateProfitChart(1, principal1, days, annualRate1, spotRate, strikeRate1, currency1);
+            drawRateProfitChart(2, principal2, days, annualRate2, inverseRate, strikeRate2, currency2);
+            
+            document.getElementById('resultSection').style.display = 'block';
             document.getElementById('resultSection').classList.add('show');
-            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
         }
 
-        function setStrikeFromSpot() {
-            const spotRate = document.getElementById('spotRate').value;
-            document.getElementById('strikeRate').value = spotRate;
-        }
-
-        function swapCurrencies() {
-            const depositSelect = document.getElementById('depositCurrency');
-            const linkedSelect = document.getElementById('linkedCurrency');
-            
-            const tempCurrency = depositSelect.value;
-            depositSelect.value = linkedSelect.value;
-            linkedSelect.value = tempCurrency;
-            
-            // 汇率取倒数
-            const spotRateInput = document.getElementById('spotRate');
-            const currentRate = parseFloat(spotRateInput.value);
-            if (currentRate > 0) {
-                spotRateInput.value = (1 / currentRate).toFixed(4);
-            }
-            
-            // 更新相关显示
-            updateInverseRate();
-            onCurrencyChange();
-        }
-
-        // 当即期汇率变动时，同步更新行使汇率
-        function syncStrikeToSpot() {
-            const spotRate = document.getElementById('spotRate').value;
-            const strikeRateInput = document.getElementById('strikeRate');
-            // 即期汇率变动时，行使汇率自动跟着变
-            strikeRateInput.value = spotRate;
-            strikeRateInput.defaultValue = spotRate;
-        }
-
-        function generateComparisonTable(principal, totalAmount, spotRate, strikeRate, breakEvenPrice, days, annualRate, depositCurrency, linkedCurrency, rateType, regularRate, chartRangePercent) {
-            const tbody = document.getElementById('comparisonBody');
+        function generateComparisonTable(portfolioNum, principal, days, annualRate, spotRate, strikeRate, depositCurrency, linkedCurrency) {
+            const tbody = document.getElementById(`comparisonBody${portfolioNum}`);
             tbody.innerHTML = '';
             
-            // 更新表头货币名称
-            document.getElementById('depositCurrencyHeader').textContent = depositCurrency;
-
-            const scenarios = [];
-            // 以打和价为中心，正负 chartRangePercent 范围
-            const minRate = breakEvenPrice * (1 - chartRangePercent);
-            const maxRate = breakEvenPrice * (1 + chartRangePercent);
-            const step = (maxRate - minRate) / 10;
+            const steps = 10;
+            const range = 0.10; // ±10%
+            const stepSize = (range * 2) / steps;
             
-            for (let i = 0; i <= 10; i++) {
-                const rate = minRate + step * i;
-                scenarios.push(rate);
-            }
-            // 确保包含行使汇率、打和价、即期汇率
-            if (!scenarios.includes(strikeRate)) scenarios.push(strikeRate);
-            if (!scenarios.includes(breakEvenPrice)) scenarios.push(breakEvenPrice);
-            if (!scenarios.includes(spotRate)) scenarios.push(spotRate); // 添加即期汇率
-            scenarios.sort((a, b) => a - b);
-
-            // 使用用户设定的定期存款利率
-            const regularInterest = principal * regularRate * (days / 365);
-            const regularTotal = principal + regularInterest;
-
-            // 根据报价方式确定触发条件
-            let structureATrigger, structureBTrigger;
-            if (rateType === 'direct') {
-                structureATrigger = '≥';
-                structureBTrigger = '≤';
-            } else {
-                structureATrigger = '≤';
-                structureBTrigger = '≥';
-            }
-
-            scenarios.forEach(rate => {
-                const tr = document.createElement('tr');
-                let triggered, finalCurrency, finalAmount, convertedAmount;
+            for (let i = 0; i <= steps; i++) {
+                const changePercent = -range + (i * stepSize);
+                const rate = spotRate * (1 + changePercent);
+                const cliInterest = principal * annualRate * (days / 365);
                 
-                // 判断是否触发（触发 = 被强行换汇）
-                if (currentStructure === 'A') {
-                    // 结构 A：汇率 ≥ 行使汇率 → 拿存款货币
-                    // 所以：汇率 < 行使汇率 时被强行换汇（触发）
-                    triggered = rateType === 'direct' ? rate < strikeRate : rate > strikeRate;
+                let finalAmount, trigger;
+                // 结构 B：汇率 ≤ 行使汇率 → 获得高息
+                if (rate <= strikeRate) {
+                    finalAmount = principal + cliInterest;
+                    trigger = '✓ 获得高息';
                 } else {
-                    // 结构 B：汇率 ≤ 行使汇率 → 拿存款货币
-                    // 所以：汇率 > 行使汇率 时被强行换汇（触发）
-                    triggered = rateType === 'direct' ? rate > strikeRate : rate < strikeRate;
+                    const lossRate = (rate - strikeRate) / strikeRate;
+                    finalAmount = principal * (1 - lossRate) + cliInterest;
+                    trigger = '✗ 被换汇';
                 }
                 
-                // 确定最终获得的货币和金额
-                // 触发 = 被强行换汇（拿挂钩货币），未触发 = 拿存款货币 + 高息
-                if (triggered) {
-                    // 触发：被强行换汇，拿到挂钩货币
-                    finalCurrency = linkedCurrency;
-                    if (rateType === 'direct') {
-                        finalAmount = totalAmount * strikeRate;
-                        convertedAmount = finalAmount / rate;
-                    } else {
-                        finalAmount = totalAmount / strikeRate;
-                        convertedAmount = finalAmount * rate;
-                    }
-                } else {
-                    // 未触发：拿回存款货币 + 高息
-                    finalCurrency = depositCurrency;
-                    finalAmount = totalAmount;
-                    convertedAmount = totalAmount;
-                }
+                // 假设定期存款利率 2.5%
+                const regularInterest = principal * 0.025 * (days / 365);
+                const vsRegular = finalAmount - principal - regularInterest;
                 
-                // 计算相比不买 CLI 的损益（用折算后的存款货币金额比较）
-                const profitLoss = convertedAmount - regularTotal;
-
-                // 计算汇率变动（相对于即期汇率）
-                const rateChangePercent = ((rate - spotRate) / spotRate) * 100;
-                const rateChangeText = rateChangePercent > 0 ? `+${rateChangePercent.toFixed(2)}%` : `${rateChangePercent.toFixed(2)}%`;
-                const rateChangeClass = rateChangePercent > 0 ? 'profit' : rateChangePercent < 0 ? 'loss' : 'break-even';
-                
-                const triggerClass = triggered ? 'loss' : 'profit';
-                const triggerText = triggered ? '❌ 触发（被换汇）' : '✅ 未触发（拿存款货币）';
-                let plClass = profitLoss > 0 ? 'profit' : profitLoss < 0 ? 'loss' : 'break-even';
-                let plText = profitLoss > 0 ? `+${formatNumber(profitLoss)}` : formatNumber(profitLoss);
-                
-                // 折算金额的样式：如果低于本金，显示为亏损
-                const convertedClass = convertedAmount < principal ? 'loss' : convertedAmount > totalAmount ? 'profit' : 'break-even';
-                
-                // 检查是否为打和价（允许小范围误差）
-                const isBreakEven = Math.abs(rate - breakEvenPrice) < 0.0001;
-                if (isBreakEven) {
-                    tr.style.backgroundColor = '#fff3cd';
-                    tr.style.fontWeight = '600';
-                }
-
-                tr.innerHTML = `
-                    <td class="${rateChangeClass}"><strong>${rateChangeText}</strong></td>
-                    <td><strong>${formatNumber(rate, 4)}</strong></td>
-                    <td class="${triggerClass}">${triggerText}</td>
-                    <td>${finalCurrency}</td>
-                    <td>${formatNumber(finalAmount)} ${finalCurrency}</td>
-                    <td class="${convertedClass}">${formatNumber(convertedAmount)} ${depositCurrency}</td>
-                    <td class="${plClass}">${plText} ${depositCurrency}</td>
-                `;
-                tbody.appendChild(tr);
-            });
+                const row = `<tr>
+                    <td>${(changePercent * 100).toFixed(1)}%</td>
+                    <td>${rate.toFixed(4)}</td>
+                    <td>${trigger}</td>
+                    <td>${depositCurrency}</td>
+                    <td>${formatNumber(finalAmount)}</td>
+                    <td class="${vsRegular >= 0 ? 'profit' : 'loss'}">${vsRegular >= 0 ? '+' : ''}${formatNumber(vsRegular)}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            }
         }
 
-        function updateComparison(principal, interest, totalAmount, annualRate, days, depositCurrency, regularRate) {
-            document.getElementById('cliPrincipal').textContent = `${formatNumber(principal)} ${depositCurrency}`;
-            document.getElementById('cliInterest').textContent = `+${formatNumber(interest)} ${depositCurrency}`;
-            document.getElementById('cliTotal').textContent = `${formatNumber(totalAmount)} ${depositCurrency}`;
-            document.getElementById('cliYield').textContent = `${formatNumber(annualRate * 100, 2)}%`;
-
-            const regularInterest = principal * regularRate * (days / 365);
-            const regularTotal = principal + regularInterest;
-
-            document.getElementById('noCliPrincipal').textContent = `${formatNumber(principal)} ${depositCurrency}`;
-            document.getElementById('noCliInterest').textContent = `${formatNumber(regularInterest)} ${depositCurrency}`;
-            document.getElementById('noCliTotal').textContent = `${formatNumber(regularTotal)} ${depositCurrency}`;
-            document.getElementById('noCliYield').textContent = `${formatNumber(regularRate * 100, 2)}%`;
-
-            const extraBenefit = interest - regularInterest;
-            document.getElementById('extraBenefit').textContent = `+${formatNumber(extraBenefit)} ${depositCurrency}（CLI 多赚的利息）`;
-        }
-
-        // 检测 iOS 设备并显示添加提示
-        function isIOS() {
-            return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        }
-        
-        function isStandalone() {
-            return window.matchMedia('(display-mode: standalone)').matches || 
-                   navigator.standalone === true;
-        }
-        
-        window.onload = function() { 
-            onCurrencyChange();
+        function drawRateProfitChart(portfolioNum, principal, days, annualRate, spotRate, strikeRate, depositCurrency) {
+            const ctx = document.getElementById(`rateProfitChart${portfolioNum}`).getContext('2d');
             
-            // iOS Safari 且未添加到主屏幕时显示提示
-            if (isIOS() && !isStandalone()) {
-                const tip = document.getElementById('iosInstallTip');
-                if (tip && !localStorage.getItem('cliInstallTipDismissed')) {
-                    tip.style.display = 'block';
-                }
-            }
-        };
-
-        // 图表实例
-        let chartInstance = null;
-
-        // 绘制汇率 - 收益关系图
-        function drawRateProfitChart(principal, totalAmount, strikeRate, breakEvenPrice, depositCurrency, linkedCurrency, rateType, regularTotal, chartRangePercent) {
-            const ctx = document.getElementById('rateProfitChart').getContext('2d');
-            
-            // 生成数据点：以打和价为中心，正负 chartRangePercent 范围
-            const scenarios = [];
-            const minRate = breakEvenPrice * (1 - chartRangePercent);
-            const maxRate = breakEvenPrice * (1 + chartRangePercent);
-            const step = (maxRate - minRate) / 10;
-            
-            for (let i = 0; i <= 10; i++) {
-                const rate = minRate + step * i;
-                scenarios.push(rate);
-            }
-            // 确保包含行使汇率和打和价
-            if (!scenarios.includes(strikeRate)) scenarios.push(strikeRate);
-            if (!scenarios.includes(breakEvenPrice)) scenarios.push(breakEvenPrice);
-            scenarios.sort((a, b) => a - b);
-
-            const labels = scenarios.map(r => r.toFixed(4));
-            const profitData = scenarios.map(rate => {
-                let triggered, convertedAmount;
-                
-                if (currentStructure === 'A') {
-                    triggered = rateType === 'direct' ? rate < strikeRate : rate > strikeRate;
-                } else {
-                    triggered = rateType === 'direct' ? rate > strikeRate : rate < strikeRate;
-                }
-                
-                if (triggered) {
-                    // 被换汇，拿到挂钩货币
-                    let finalAmount;
-                    if (rateType === 'direct') {
-                        finalAmount = totalAmount * strikeRate;
-                        convertedAmount = finalAmount / rate;
-                    } else {
-                        finalAmount = totalAmount / strikeRate;
-                        convertedAmount = finalAmount * rate;
-                    }
-                } else {
-                    // 拿存款货币
-                    convertedAmount = totalAmount;
-                }
-                
-                return convertedAmount - regularTotal;
-            });
-
-            // 颜色：盈利绿色，亏损红色
-            const pointColors = profitData.map(p => p > 0 ? 'rgba(40, 167, 69, 1)' : p < 0 ? 'rgba(220, 53, 69, 1)' : 'rgba(255, 193, 7, 1)');
-            const lineColor = 'rgba(102, 126, 234, 1)';
-            const fillColor = 'rgba(102, 126, 234, 0.1)';
-
             // 销毁旧图表
-            if (chartInstance) {
-                chartInstance.destroy();
+            if (portfolioNum === 1 && rateProfitChart1) rateProfitChart1.destroy();
+            if (portfolioNum === 2 && rateProfitChart2) rateProfitChart2.destroy();
+            
+            const rates = [];
+            const profits = [];
+            
+            for (let i = -0.10; i <= 0.10; i += 0.01) {
+                const rate = spotRate * (1 + i);
+                const cliInterest = principal * annualRate * (days / 365);
+                let finalAmount;
+                
+                // 结构 B：汇率 ≤ 行使汇率 → 获得高息
+                if (rate <= strikeRate) {
+                    finalAmount = principal + cliInterest;
+                } else {
+                    const lossRate = (rate - strikeRate) / strikeRate;
+                    finalAmount = principal * (1 - lossRate) + cliInterest;
+                }
+                
+                rates.push(rate.toFixed(4));
+                profits.push(finalAmount - principal);
             }
-
-            // 创建新图表
-            chartInstance = new Chart(ctx, {
+            
+            const chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: labels,
+                    labels: rates,
                     datasets: [{
-                        label: '收益 (' + depositCurrency + ')',
-                        data: profitData,
-                        borderColor: lineColor,
-                        backgroundColor: fillColor,
-                        pointBackgroundColor: pointColors,
-                        pointBorderColor: pointColors,
-                        pointRadius: 6,
-                        pointHoverRadius: 8,
+                        label: 'CLI 收益',
+                        data: profits,
+                        borderColor: portfolioNum === 1 ? '#667eea' : '#764ba2',
+                        backgroundColor: portfolioNum === 1 ? 'rgba(102, 126, 234, 0.1)' : 'rgba(118, 75, 162, 0.1)',
                         fill: true,
-                        tension: 0.3
+                        tension: 0.4
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top'
-                        },
+                        legend: { display: true },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
-                                    const value = context.parsed.y;
-                                    const sign = value > 0 ? '+' : '';
-                                    return `收益：${sign}${value.toFixed(2)} ${depositCurrency}`;
-                                }
-                            }
-                        },
-                        annotation: {
-                            annotations: {
-                                breakEvenLine: {
-                                    type: 'line',
-                                    xMin: breakEvenPrice.toFixed(4),
-                                    xMax: breakEvenPrice.toFixed(4),
-                                    borderColor: 'rgba(255, 193, 7, 0.8)',
-                                    borderWidth: 2,
-                                    borderDash: [5, 5],
-                                    label: {
-                                        content: '打和价',
-                                        enabled: true,
-                                        position: 'start'
-                                    }
-                                }
+                                label: (context) => `${context.dataset.label}: ${formatNumber(context.parsed.y)}`
                             }
                         }
                     },
                     scales: {
                         x: {
-                            title: {
-                                display: true,
-                                text: '到期汇率',
-                                font: { size: 14, weight: 'bold' }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            }
+                            title: { display: true, text: '到期汇率' },
+                            ticks: { maxRotation: 45, minRotation: 45 }
                         },
                         y: {
-                            title: {
-                                display: true,
-                                text: '收益 (' + depositCurrency + ')',
-                                font: { size: 14, weight: 'bold' }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            }
+                            title: { display: true, text: `收益 (${depositCurrency})` }
                         }
                     }
                 }
             });
-        }
-
-        // ==================== 敏感性分析 ====================
-        function calculateSensitivityAnalysis(principal, totalAmount, spotRate, strikeRate, depositCurrency, linkedCurrency, rateType, regularTotal) {
-            const tbody = document.getElementById('sensitivityBody');
-            tbody.innerHTML = '';
             
-            // 更新表头货币名称
-            document.getElementById('depositCurrencySensitivity').textContent = depositCurrency;
-            
-            // 敏感性分析情景：±1%, ±2%, ±5%, ±10%
-            const sensitivityScenarios = [-0.10, -0.05, -0.02, -0.01, 0, 0.01, 0.02, 0.05, 0.10];
-            
-            // 根据报价方式确定触发条件
-            let structureATrigger, structureBTrigger;
-            if (rateType === 'direct') {
-                structureATrigger = '≥';
-                structureBTrigger = '≤';
+            if (portfolioNum === 1) {
+                rateProfitChart1 = chart;
             } else {
-                structureATrigger = '≤';
-                structureBTrigger = '≥';
-            }
-            
-            sensitivityScenarios.forEach(pct => {
-                const rate = spotRate * (1 + pct);
-                let triggered, finalCurrency, finalAmount, convertedAmount;
-                
-                // 判断是否触发（触发 = 被强行换汇）
-                if (currentStructure === 'A') {
-                    triggered = rateType === 'direct' ? rate < strikeRate : rate > strikeRate;
-                } else {
-                    triggered = rateType === 'direct' ? rate > strikeRate : rate < strikeRate;
-                }
-                
-                // 确定最终获得的货币和金额
-                if (triggered) {
-                    finalCurrency = linkedCurrency;
-                    if (rateType === 'direct') {
-                        finalAmount = totalAmount * strikeRate;
-                        convertedAmount = finalAmount / rate;
-                    } else {
-                        finalAmount = totalAmount / strikeRate;
-                        convertedAmount = finalAmount * rate;
-                    }
-                } else {
-                    finalCurrency = depositCurrency;
-                    finalAmount = totalAmount;
-                    convertedAmount = totalAmount;
-                }
-                
-                const profitLoss = convertedAmount - regularTotal;
-                const pctText = pct > 0 ? `+${(pct * 100).toFixed(0)}%` : `${(pct * 100).toFixed(0)}%`;
-                const triggerClass = triggered ? 'loss' : 'profit';
-                const triggerText = triggered ? '❌ 触发' : '✅ 未触发';
-                let plClass = profitLoss > 0 ? 'profit' : profitLoss < 0 ? 'loss' : 'break-even';
-                let plText = profitLoss > 0 ? `+${formatNumber(profitLoss)}` : formatNumber(profitLoss);
-                
-                const tr = document.createElement('tr');
-                if (pct === 0) {
-                    tr.style.backgroundColor = '#f0f0f0';
-                    tr.style.fontWeight = '600';
-                }
-                
-                tr.innerHTML = `
-                    <td><strong>${pctText}</strong></td>
-                    <td>${formatNumber(rate, 4)}</td>
-                    <td class="${triggerClass}">${triggerText}</td>
-                    <td>${finalCurrency}</td>
-                    <td>${formatNumber(finalAmount)} ${finalCurrency}</td>
-                    <td>${formatNumber(convertedAmount)} ${depositCurrency}</td>
-                    <td class="${plClass}">${plText} ${depositCurrency}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // ==================== 风险指标计算 ====================
-        function calculateRiskMetrics(principal, totalAmount, spotRate, strikeRate, breakEvenPrice, depositCurrency, linkedCurrency, rateType, regularTotal, interest, days) {
-            // 假设汇率波动率（年化）- 可根据历史数据计算
-            const assumedVolatility = 0.10; // 10% 年化波动率
-            
-            // 计算最大可能亏损（最坏情况下的损失）
-            // 最坏情况：被强行换汇，且汇率朝最不利方向大幅变动
-            // 简化计算：假设汇率朝不利方向变动 10%
-            let worstCaseRate;
-            if (currentStructure === 'A') {
-                // 结构 A：汇率下跌被换汇，最坏情况是汇率大幅下跌
-                worstCaseRate = strikeRate * 0.90;
-            } else {
-                // 结构 B：汇率上涨被换汇，最坏情况是汇率大幅上涨
-                worstCaseRate = strikeRate * 1.10;
-            }
-            
-            let worstCaseConverted;
-            if (rateType === 'direct') {
-                worstCaseConverted = (totalAmount * strikeRate) / worstCaseRate;
-            } else {
-                worstCaseConverted = (totalAmount / strikeRate) * worstCaseRate;
-            }
-            
-            const maxLoss = principal - worstCaseConverted;
-            
-            // VaR (95% 置信度) - 使用正态分布假设
-            // 95% 置信度对应 1.645 个标准差
-            const zScore95 = 1.645;
-            const dailyVolatility = assumedVolatility / Math.sqrt(252); // 日化波动率
-            const periodVolatility = dailyVolatility * Math.sqrt(days); // 期间波动率
-            const varRate = spotRate * (1 - zScore95 * periodVolatility); // 95% 置信度下的最坏汇率
-            
-            let varConverted;
-            if (rateType === 'direct') {
-                varConverted = (totalAmount * strikeRate) / Math.max(varRate, 0.0001);
-            } else {
-                varConverted = (totalAmount / strikeRate) * varRate;
-            }
-            
-            const varLoss = principal - varConverted;
-            
-            // 盈亏比 = 最大盈利 / 最大亏损
-            const maxProfit = interest; // 最大盈利就是利息收入
-            const profitLossRatio = maxLoss > 0 ? maxProfit / maxLoss : 999;
-            
-            // 风险收益比 = 预期收益 / 风险（VaR）
-            const riskRewardRatio = varLoss > 0 ? (interest / varLoss) * 100 : 999;
-            
-            // 更新显示
-            document.getElementById('varValue').textContent = formatNumber(Math.max(0, varLoss));
-            document.getElementById('varCurrency').textContent = depositCurrency;
-            document.getElementById('maxLoss').textContent = formatNumber(Math.max(0, maxLoss));
-            document.getElementById('maxLossCurrency').textContent = depositCurrency;
-            document.getElementById('profitLossRatio').textContent = formatNumber(profitLossRatio, 2);
-            document.getElementById('riskRewardRatio').textContent = formatNumber(Math.min(999, riskRewardRatio), 2);
-            
-            // 根据风险水平调整颜色
-            const varItem = document.getElementById('varItem');
-            if (varLoss > principal * 0.05) {
-                varItem.style.background = 'linear-gradient(135deg, #f8d7da 0%, #e2c0c3 100%)';
-            } else if (varLoss > principal * 0.02) {
-                varItem.style.background = 'linear-gradient(135deg, #fff3cd 0%, #e2d4b8 100%)';
-            } else {
-                varItem.style.background = 'linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)';
+                rateProfitChart2 = chart;
             }
         }
 
-        // ==================== 隐含波动率计算 ====================
-        function calculateImpliedVolatility(principal, totalAmount, spotRate, strikeRate, depositCurrency, rateType, regularTotal, interest, days, annualRate) {
-            // CLI 超额收益（期权费收入）
-            const cliExcessReturn = interest - (principal * (annualRate - 0.035) * (days / 365)); // 假设 3.5% 为基准定存利率
-            const excessReturn = Math.max(0, interest - (principal * 0.035 * (days / 365)));
-            
-            // 使用简化 Black-Scholes 模型估算隐含波动率
-            // 对于二元期权，期权费 ≈ 概率 × 赔付
-            // 这里使用简化方法：根据 CLI 超额收益反推隐含概率
-            
-            const timeToMaturity = days / 365; // 年化
-            
-            // 简化隐含波动率计算（使用 ATM 期权近似）
-            // ATM 期权价格 ≈ 0.4 × S × σ × √T
-            // 反推：σ ≈ 期权费 / (0.4 × S × √T)
-            const optionPremium = excessReturn;
-            const sigma = optionPremium / (0.4 * principal * Math.sqrt(timeToMaturity));
-            const impliedVol = Math.min(Math.max(sigma, 0.01), 2.0); // 限制在 1%-200% 之间
-            
-            // 理论期权费（使用计算出的隐含波动率）
-            const theoreticalPremium = 0.4 * principal * impliedVol * Math.sqrt(timeToMaturity);
-            
-            // 盈亏平衡概率
-            // 使用正态分布近似：概率 = N(d2)
-            // 简化：概率 ≈ 50% + (超额收益 / 本金) / 波动率
-            const breakEvenProb = 0.5 + (excessReturn / principal) / (impliedVol * Math.sqrt(timeToMaturity));
-            const breakEvenProbability = Math.min(Math.max(breakEvenProb, 0), 1) * 100;
-            
-            // 更新显示
-            document.getElementById('impliedVolatility').textContent = formatNumber(impliedVol * 100, 2);
-            document.getElementById('theoreticalPremium').textContent = formatNumber(theoreticalPremium);
-            document.getElementById('premiumCurrency').textContent = depositCurrency;
-            document.getElementById('cliExcessReturn').textContent = formatNumber(excessReturn);
-            document.getElementById('excessCurrency').textContent = depositCurrency;
-            document.getElementById('breakEvenProbability').textContent = formatNumber(breakEvenProbability, 2);
-        }
-
-        // ==================== 投资期限 - 收益关系图（含风险） ====================
-        let periodChartInstance = null;
-        
-        function drawPeriodProfitChart(principal, spotRate, strikeRate, depositCurrency, linkedCurrency, rateType, annualRate, regularRate) {
-            const ctx = document.getElementById('periodProfitChart').getContext('2d');
-            
-            // 生成数据：1 天到 180 天（6 个月）
-            const periods = [];
-            for (let days = 1; days <= 180; days += 7) {
-                periods.push(days);
-            }
-            periods.push(180); // 确保包含 180 天
-            
-            const labels = periods.map(d => `${d}天`);
-            
-            // 最好情况：未触发，获得 CLI 高息
-            const bestCaseData = periods.map(days => {
-                return principal * annualRate * (days / 365);
-            });
-            
-            // 基准情况：定期存款利息（无风险）
-            const regularData = periods.map(days => {
-                return principal * regularRate * (days / 365);
-            });
-            
-            // 最坏情况：被强行换汇 + 汇率朝不利方向变动 10%
-            // 亏损 = 本金 × 汇率变动幅度 - CLI 利息
-            const worstCaseData = periods.map(days => {
-                const cliInterest = principal * annualRate * (days / 365);
-                // 假设汇率朝不利方向变动 10%（结构 B 看涨，不利方向是下跌）
-                const exchangeLoss = principal * 0.10; // 汇率变动 10% 的本金损失
-                return cliInterest - exchangeLoss;
-            });
-            
-            // 打和点：利息收入 = 汇率变动损失
-            const breakEvenData = periods.map(days => {
-                const cliInterest = principal * annualRate * (days / 365);
-                return 0; // 相对于定期存款的损益
-            });
-            
-            // 销毁旧图表
-            if (periodChartInstance) {
-                periodChartInstance.destroy();
-            }
-            
-            // 创建新图表
-            periodChartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: '最好情况（未触发）',
-                            data: bestCaseData,
-                            borderColor: 'rgba(40, 167, 69, 1)',
-                            backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                            borderWidth: 2,
-                            fill: false,
-                            tension: 0.3
-                        },
-                        {
-                            label: '定期存款（无风险）',
-                            data: regularData,
-                            borderColor: 'rgba(100, 100, 100, 1)',
-                            backgroundColor: 'rgba(100, 100, 100, 0.1)',
-                            borderWidth: 2,
-                            borderDash: [5, 5],
-                            fill: false,
-                            tension: 0.3
-                        },
-                        {
-                            label: '最坏情况（触发 + 汇率 -10%）',
-                            data: worstCaseData,
-                            borderColor: 'rgba(220, 53, 69, 1)',
-                            backgroundColor: 'rgba(220, 53, 69, 0.1)',
-                            borderWidth: 2,
-                            fill: false,
-                            tension: 0.3
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const value = context.parsed.y;
-                                    const sign = value > 0 ? '+' : '';
-                                    return `${context.dataset.label}: ${sign}${formatNumber(value)} ${depositCurrency}`;
-                                }
-                            }
-                        },
-                        annotation: {
-                            annotations: {
-                                zeroLine: {
-                                    type: 'line',
-                                    yMin: 0,
-                                    yMax: 0,
-                                    borderColor: 'rgba(255, 193, 7, 0.8)',
-                                    borderWidth: 2,
-                                    borderDash: [5, 5],
-                                    label: {
-                                        content: '本金打和点',
-                                        enabled: true,
-                                        position: 'start'
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: '投资期限（天）',
-                                font: { size: 14, weight: 'bold' }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: '净收益 (' + depositCurrency + ')',
-                                font: { size: 14, weight: 'bold' }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            }
-                        }
-                    }
-                }
-            });
-        }
+        // 初始化
+        window.onload = function() {
+            onCurrencyChange();
+        };
     </script>
 </body>
 </html>
