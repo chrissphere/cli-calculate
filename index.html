@@ -4,9 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CLI 收益计算器</title>
-    <meta http-equiv="refresh" content="0; url=cli-calculator.html">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container { max-width: 600px; width: 100%; }
+        h1 { text-align: center; color: white; margin-bottom: 30px; font-size: 28px; }
+        .card { background: white; border-radius: 16px; padding: 30px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        .card-title { font-size: 20px; font-weight: 600; color: #333; margin-bottom: 20px; text-align: center; }
+        .version-btn { display: block; width: 100%; padding: 20px; margin-bottom: 15px; border: 2px solid #e0e0e0; border-radius: 12px; background: white; cursor: pointer; font-size: 18px; font-weight: 600; transition: all 0.3s; text-align: left; text-decoration: none; color: #333; }
+        .version-btn:hover { border-color: #667eea; transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3); }
+        .version-btn .desc { display: block; margin-top: 8px; font-size: 14px; color: #666; font-weight: 400; }
+        .version-btn.featured { border-color: #667eea; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .version-btn.featured .desc { color: rgba(255,255,255,0.9); }
+    </style>
 </head>
 <body>
-    <p>正在跳转... <a href="cli-calculator.html">点击这里</a></p>
+    <div class="container">
+        <h1>🖤 CLI 收益计算器</h1>
+        
+        <div class="card">
+            <div class="card-title">选择版本</div>
+            
+            <a href="cli-calculator-dual.html" class="version-btn featured">
+                🚀 双币种组合版
+                <span class="desc">同时投资两个方向，USD↔CNY 互为存款/挂钩货币</span>
+            </a>
+            
+            <a href="cli-calculator-single.html" class="version-btn">
+                💰 单一币种版
+                <span class="desc">经典版本，单一货币对 CLI 计算</span>
+            </a>
+        </div>
+    </div>
 </body>
 </html>

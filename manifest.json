@@ -1,8 +1,8 @@
 {
   "name": "CLI 收益计算器",
   "short_name": "CLI 计算器",
-  "description": "货币挂钩投资 (CLI/结构性存款) 收益计算器",
-  "start_url": "./cli-calculator.html",
+  "description": "货币挂钩投资 (CLI/结构性存款) 收益计算器 - 支持单一币种和双币种组合",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#667eea",
   "theme_color": "#667eea",
