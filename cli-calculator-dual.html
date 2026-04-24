@@ -365,10 +365,12 @@
             const total1 = p1 + int1;
             const be1 = strike1 * (1 + r1 * (days / 365));
             
-            // 组合 2：结构 B（看涨 c1），但 c2 存款挂钩 c1，需要用倒数汇率逻辑
-            // 简化：都用 USD/CNY 汇率，组合 2 的触发条件相反
+            // 组合 2：c2 存款 + 挂钩 c1（看涨 c1）
+            // 结构 B：rate ≥ strike2 → 不触发，拿 c2 + 利息
+            //         rate < strike2 → 触发，c2 被换成 c1
             const int2 = p2 * r2 * (days / 365);
             const total2 = p2 + int2;
+            // 打和价：c1/c2 汇率下，c2 存款的打和价 = strike2 / (1+利息比)
             const be2 = strike2 / (1 + r2 * (days / 365));
             
             document.getElementById('totalPrincipal').textContent = formatNumber(p1 + p2);
@@ -428,8 +430,11 @@
                 const trig2 = rate < strike2;
                 let final2, conv2;
                 if (trig2) {
-                    final2 = p2 * strike2; // 被换成 c1
-                    conv2 = final2 * rate; // 折回 c2
+                    // 触发：c2 存款被换成 c1，需要用正确方向
+                    // c1/c2 汇率下，c2 金额 = c2 本金 × strike2 是错误的
+                    // 正确：c2 本金 ÷ strike2 = c1 金额（因为 strike2 是 1 c1 = ? c2）
+                    final2 = p2 / strike2; // c2 换成 c1
+                    conv2 = final2 * rate; // 用到期汇率折回 c2
                 } else {
                     final2 = p2 + p2 * r2 * (days / 365);
                     conv2 = final2;
@@ -469,9 +474,16 @@
                 rates.push(rate.toFixed(4));
                 prof1.push(f1 - p1);
                 
-                // 组合 2
+                // 组合 2：c2 存款，触发时 c2 被换成 c1
                 const int2 = p2 * r2 * (days / 365);
-                let f2 = rate >= strike2 ? p2 + int2 : p2 * strike2 * rate;
+                let f2;
+                if (rate >= strike2) {
+                    f2 = p2 + int2; // 不触发，拿 c2 + 利息
+                } else {
+                    // 触发：c2 换成 c1，再折回 c2
+                    const c1Amount = p2 / strike2; // c2 ÷ strike = c1
+                    f2 = c1Amount * rate; // c1 × rate = c2（用到期汇率）
+                }
                 prof2.push(f2 - p2);
             }
             
