@@ -1,0 +1,7 @@
+# 忽略开发文件
+*.md
+*.py
+*.js
+generate-icons.html
+create-icons.js
+create_icons.py
