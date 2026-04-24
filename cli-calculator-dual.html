@@ -191,10 +191,14 @@
             
             <div class="card">
                 <div class="card-title">📈 汇率 - 收益关系图（组合 1 & 组合 2）</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div class="info-tip" style="margin: 0;">💡 图表显示 <span id="chartRateLabel">USD/CNY</span> 汇率变化对两个组合收益的影响</div>
+                    <button type="button" onclick="toggleChartCurrency()" id="chartCurrencyBtn" style="padding: 8px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; white-space: nowrap;">🔄 切换到 USD 显示</button>
+                </div>
                 <div style="height: 450px; position: relative;">
                     <canvas id="rateProfitChartDual"></canvas>
                 </div>
-                <div class="info-tip">💡 图表显示 <span id="chartRateLabel">USD/CNY</span> 汇率变化对两个组合收益的影响，蓝色=组合 1，紫色=组合 2，🟢绿色虚线=汇总收益</div>
+                <div class="info-tip">💡 蓝色=组合 1，紫色=组合 2，🟢绿色虚线=汇总收益 | 当前显示币种：<span id="chartDisplayCurrency" style="font-weight: 600;">AUD</span></div>
             </div>
             
             <div class="info-tip">
@@ -216,6 +220,27 @@
         }
         
         let rateProfitChartDual = null;
+        let chartDisplayCurrency = 'c1'; // 'c1' 或 'c2'，默认显示组合 1 的存款币种
+
+        function toggleChartCurrency() {
+            const c1 = document.getElementById('currency1').value;
+            const c2 = document.getElementById('currency2').value;
+            const btn = document.getElementById('chartCurrencyBtn');
+            const displayLabel = document.getElementById('chartDisplayCurrency');
+            
+            if (chartDisplayCurrency === 'c1') {
+                chartDisplayCurrency = 'c2';
+                btn.textContent = `🔄 切换到 ${c1} 显示`;
+                displayLabel.textContent = c2;
+            } else {
+                chartDisplayCurrency = 'c1';
+                btn.textContent = `🔄 切换到 ${c2} 显示`;
+                displayLabel.textContent = c1;
+            }
+            
+            // 重新计算并绘制图表
+            calculateDual();
+        }
 
         function onCurrencyChange() {
             const c1 = document.getElementById('currency1').value;
@@ -400,6 +425,10 @@
             
             document.getElementById('resultSection').style.display = 'block';
             document.getElementById('resultSection').classList.add('show');
+            
+            // 初始化图表按钮状态
+            document.getElementById('chartDisplayCurrency').textContent = chartDisplayCurrency === 'c1' ? c1 : c2;
+            document.getElementById('chartCurrencyBtn').textContent = `🔄 切换到 ${chartDisplayCurrency === 'c1' ? c2 : c1} 显示`;
         }
 
         function generateDualComparisonTable(p1, p2, days, r1, r2, spot, strike1, strike2, c1, c2) {
@@ -499,8 +528,10 @@
             
             const rates = [], prof1 = [], prof2 = [], profTotal = [];
             
-            // 更新图表 X 轴标签
+            // 更新图表 X 轴标签和按钮
             document.getElementById('chartRateLabel').textContent = `${c1}/${c2}`;
+            document.getElementById('chartDisplayCurrency').textContent = chartDisplayCurrency === 'c1' ? c1 : c2;
+            document.getElementById('chartCurrencyBtn').textContent = `🔄 切换到 ${chartDisplayCurrency === 'c1' ? c2 : c1} 显示`;
             
             for (let i = -0.10; i <= 0.10; i += 0.01) {
                 const rate = spot * (1 + i);
@@ -508,8 +539,7 @@
                 // 组合 1
                 const int1 = p1 * r1 * (days / 365);
                 let f1 = rate <= strike1 ? p1 + int1 : p1 * strike1 / rate;
-                rates.push(rate.toFixed(4));
-                prof1.push(f1 - p1);
+                let profit1 = f1 - p1;
                 
                 // 组合 2：c2 存款，触发时 c2 被换成 c1
                 const int2 = p2 * r2 * (days / 365);
@@ -521,10 +551,42 @@
                     const c1Amount = p2 / strike2; // c2 ÷ strike = c1
                     f2 = c1Amount * rate; // c1 × rate = c2（用到期汇率）
                 }
-                prof2.push(f2 - p2);
+                let profit2 = f2 - p2;
                 
-                // 汇总：两个组合的总收益
-                profTotal.push((f1 - p1) + (f2 - p2));
+                // 根据显示币种转换收益
+                if (chartDisplayCurrency === 'c1') {
+                    // 统一转换成 c1 币种
+                    // 组合 1 已经是 c1，无需转换
+                    // 组合 2 需要转换
+                    let profit2InC1;
+                    if (rate >= strike2) {
+                        // 不触发，profit2 是 c2 币种，转成 c1
+                        profit2InC1 = profit2 / rate;
+                    } else {
+                        // 触发，profit2 已经是 c1 币种
+                        profit2InC1 = profit2;
+                    }
+                    prof1.push(profit1);
+                    prof2.push(profit2InC1);
+                    profTotal.push(profit1 + profit2InC1);
+                } else {
+                    // 统一转换成 c2 币种
+                    // 组合 2 已经是 c2，无需转换
+                    // 组合 1 需要转换
+                    let profit1InC2;
+                    if (rate <= strike1) {
+                        // 不触发，profit1 是 c1 币种，转成 c2
+                        profit1InC2 = profit1 * rate;
+                    } else {
+                        // 触发，profit1 已经是 c2 币种
+                        profit1InC2 = profit1;
+                    }
+                    prof1.push(profit1InC2);
+                    prof2.push(profit2);
+                    profTotal.push(profit1InC2 + profit2);
+                }
+                
+                rates.push(rate.toFixed(4));
             }
             
             rateProfitChartDual = new Chart(ctx, {
@@ -533,7 +595,7 @@
                     labels: rates,
                     datasets: [
                         { label: `组合${c1}/${c2}`, data: prof1, borderColor: '#667eea', backgroundColor: 'rgba(102, 126, 234, 0.1)', fill: true, tension: 0.4, yAxisID: 'y' },
-                        { label: `组合${c2}/${c1}`, data: prof2, borderColor: '#764ba2', backgroundColor: 'rgba(118, 75, 162, 0.1)', fill: true, tension: 0.4, yAxisID: 'y1' },
+                        { label: `组合${c2}/${c1}`, data: prof2, borderColor: '#764ba2', backgroundColor: 'rgba(118, 75, 162, 0.1)', fill: true, tension: 0.4, yAxisID: 'y' },
                         { label: `汇总收益`, data: profTotal, borderColor: '#28a745', backgroundColor: 'rgba(40, 167, 69, 0.1)', borderWidth: 3, borderDash: [5, 5], fill: false, tension: 0.4, yAxisID: 'y' }
                     ]
                 },
@@ -543,12 +605,20 @@
                     interaction: { mode: 'index', intersect: false },
                     plugins: {
                         legend: { display: true },
-                        tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatNumber(ctx.parsed.y)}` } }
+                        tooltip: { 
+                            callbacks: { 
+                                label: (ctx) => `${ctx.dataset.label}: ${formatNumber(ctx.parsed.y)} ${chartDisplayCurrency === 'c1' ? c1 : c2}` 
+                            } 
+                        }
                     },
                     scales: {
                         x: { title: { display: true, text: `${c1}/${c2} 汇率` }, ticks: { maxRotation: 45, minRotation: 45 } },
-                        y: { type: 'linear', display: true, position: 'left', title: { display: true, text: `组合 1 收益 (${c1})` } },
-                        y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: `组合 2 收益 (${c2})` } }
+                        y: { 
+                            type: 'linear', 
+                            display: true, 
+                            position: 'left', 
+                            title: { display: true, text: `收益 (${chartDisplayCurrency === 'c1' ? c1 : c2})` } 
+                        }
                     }
                 }
             });
