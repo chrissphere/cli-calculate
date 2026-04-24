@@ -592,9 +592,9 @@
                 data: {
                     labels: rates,
                     datasets: [
-                        { label: `组合${c1}/${c2}`, data: prof1, borderColor: '#667eea', backgroundColor: 'rgba(102, 126, 234, 0.1)', fill: true, tension: 0.4, yAxisID: 'y' },
-                        { label: `组合${c2}/${c1}`, data: prof2, borderColor: '#764ba2', backgroundColor: 'rgba(118, 75, 162, 0.1)', fill: true, tension: 0.4, yAxisID: 'y' },
-                        { label: `汇总收益`, data: profTotal, borderColor: '#28a745', backgroundColor: 'rgba(40, 167, 69, 0.1)', borderWidth: 3, borderDash: [5, 5], fill: false, tension: 0.4, yAxisID: 'y' }
+                        { label: `组合${c1}/${c2}`, data: prof1, borderColor: '#667eea', backgroundColor: 'rgba(102, 126, 234, 0.1)', fill: true, tension: 0.4 },
+                        { label: `组合${c2}/${c1}`, data: prof2, borderColor: '#764ba2', backgroundColor: 'rgba(118, 75, 162, 0.1)', fill: true, tension: 0.4 },
+                        { label: `汇总收益`, data: profTotal, borderColor: '#28a745', backgroundColor: 'rgba(40, 167, 69, 0.1)', borderWidth: 3, borderDash: [5, 5], fill: false, tension: 0.4 }
                     ]
                 },
                 options: {
@@ -615,7 +615,8 @@
                             type: 'linear', 
                             display: true, 
                             position: 'left', 
-                            title: { display: true, text: `收益 (${chartDisplayCurrency === 'c1' ? c1 : c2})` } 
+                            title: { display: true, text: `收益 (${chartDisplayCurrency === 'c1' ? c1 : c2})` },
+                            grid: { color: (ctx) => ctx.tick.value === 0 ? '#333' : '#e0e0e0' }
                         }
                     }
                 }
