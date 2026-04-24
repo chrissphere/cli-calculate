@@ -198,6 +198,7 @@
                     <canvas id="rateProfitChartDual"></canvas>
                 </div>
                 <div class="info-tip">💡 蓝色=组合 1，紫色=组合 2，🟢绿色虚线=汇总收益 | 当前显示币种：<span id="chartDisplayCurrency" style="font-weight: 600;">AUD</span></div>
+                <div class="info-tip" style="margin-top: 10px; background: #fff3cd; border-left-color: #ffc107;">⚠️ 注意：两个组合本金不同（组合 1: <span id="chartPrincipal1">50,000</span> <span id="chartPrincipalCurrency1">AUD</span> | 组合 2: <span id="chartPrincipal2">50,000</span> <span id="chartPrincipalCurrency2">USD</span>），本金差异会导致盈亏幅度不对称</div>
             </div>
             
             <div class="info-tip">
@@ -427,6 +428,11 @@
             // 初始化图表按钮状态
             document.getElementById('chartDisplayCurrency').textContent = chartDisplayCurrency === 'c1' ? c1 : c2;
             document.getElementById('chartCurrencyBtn').textContent = `🔄 切换到 ${chartDisplayCurrency === 'c1' ? c2 : c1} 显示`;
+            // 更新图表提示中的本金信息
+            document.getElementById('chartPrincipal1').textContent = formatNumber(p1, 0);
+            document.getElementById('chartPrincipalCurrency1').textContent = c1;
+            document.getElementById('chartPrincipal2').textContent = formatNumber(p2, 0);
+            document.getElementById('chartPrincipalCurrency2').textContent = c2;
         }
 
         function generateDualComparisonTable(p1, p2, days, r1, r2, spot, strike1, strike2, c1, c2) {
