@@ -164,9 +164,9 @@
                     <h3>📌 组合 2：<span id="portfolio2Label">CNY 存款 + USD 挂钩</span></h3>
                     <div class="input-grid">
                         <div class="input-group"><label>💵 本金</label><input type="number" id="principal2" value="50000" step="1000"></div>
-                        <div class="input-group"><label>🎯 行使汇率</label><input type="number" id="strikeRate2" value="7.2500" step="0.0001"></div>
+                        <div class="input-group"><label>🎯 行使汇率</label><input type="number" id="strikeRate2" value="0.1379" step="0.0001"></div>
                         <div class="input-group"><label>📈 CLI 年化利率 (%)</label><input type="number" id="annualRate2" value="6.5" step="0.1"></div>
-                        <div class="input-group"><button type="button" onclick="setStrike2FromSpot()" style="padding: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">= 即期汇率</button></div>
+                        <div class="input-group"><button type="button" onclick="setStrike2FromSpot()" style="padding: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">= 即期汇率倒数</button></div>
                     </div>
                 </div>
             </div>
@@ -277,8 +277,14 @@
             updateRateTypeDisplay();
             // 货币变化时，两个行使汇率都同步到当前即期汇率（用户可后续独立修改）
             const spotRate = parseFloat(document.getElementById('spotRate').value) || 1;
+            const rateType = document.querySelector('input[name="rateType"]:checked').value;
             document.getElementById('strikeRate1').value = spotRate.toFixed(4);
-            document.getElementById('strikeRate2').value = spotRate.toFixed(4);
+            // 组合 2 的行使汇率根据报价方式调整
+            if (rateType === 'direct') {
+                document.getElementById('strikeRate2').value = (1 / spotRate).toFixed(4); // 间接报价
+            } else {
+                document.getElementById('strikeRate2').value = spotRate.toFixed(4); // 直接报价
+            }
         }
 
         function updateRateTypeDisplay() {
@@ -322,7 +328,15 @@
         function setStrike1FromSpot() { document.getElementById('strikeRate1').value = document.getElementById('spotRate').value; }
         function setStrike2FromSpot() {
             const spotRate = parseFloat(document.getElementById('spotRate').value) || 1;
-            document.getElementById('strikeRate2').value = spotRate.toFixed(4);
+            const rateType = document.querySelector('input[name="rateType"]:checked').value;
+            // 组合 2 的报价方式与组合 1 相反，所以行使汇率也要相应调整
+            if (rateType === 'direct') {
+                // 组合 1 直接报价 (USD/CNY)，组合 2 间接报价 (CNY/USD)
+                document.getElementById('strikeRate2').value = (1 / spotRate).toFixed(4);
+            } else {
+                // 组合 1 间接报价 (CNY/USD)，组合 2 直接报价 (USD/CNY)
+                document.getElementById('strikeRate2').value = spotRate.toFixed(4);
+            }
         }
 
         function formatNumber(num, decimals = 2) {
@@ -377,14 +391,16 @@
             document.getElementById('totalAmount1').textContent = formatNumber(totalAmount1);
             document.getElementById('breakEven1').textContent = breakEven1.toFixed(4);
             const triggerCond1 = rateType === 'direct' ? '≤' : '≥';
-            document.getElementById('conditionText1').textContent = `结构 B（看涨${currency2}）：到期时 ${rateType === 'direct' ? spotRate.toFixed(4) : inverseRate.toFixed(4)} ${triggerCond1} ${strikeRate1.toFixed(4)} → 获得高息 ${formatNumber(interest1)} ${currency1}`;
+            const compareRate1 = rateType === 'direct' ? spotRate : inverseRate;
+            document.getElementById('conditionText1').textContent = `结构 B（看涨${currency2}）：到期时 ${compareRate1.toFixed(4)} ${triggerCond1} ${strikeRate1.toFixed(4)} → 获得高息 ${formatNumber(interest1)} ${currency1}`;
             
             // 更新组合 2 详情
             document.getElementById('cliInterest2').textContent = formatNumber(interest2);
             document.getElementById('totalAmount2').textContent = formatNumber(totalAmount2);
             document.getElementById('breakEven2').textContent = breakEven2.toFixed(4);
             const triggerCond2 = rateType === 'direct' ? '≥' : '≤'; // 组合 2 与组合 1 相反
-            document.getElementById('conditionText2').textContent = `结构 B（看涨${currency1}）：到期时 ${rateType === 'direct' ? inverseRate.toFixed(4) : spotRate.toFixed(4)} ${triggerCond2} ${strikeRate2.toFixed(4)} → 获得高息 ${formatNumber(interest2)} ${currency2}`;
+            const compareRate2 = rateType === 'direct' ? inverseRate : spotRate;
+            document.getElementById('conditionText2').textContent = `结构 B（看涨${currency1}）：到期时 ${compareRate2.toFixed(4)} ${triggerCond2} ${strikeRate2.toFixed(4)} → 获得高息 ${formatNumber(interest2)} ${currency2}`;
             
             // 生成合并对照表
             generateDualComparisonTable(principal1, principal2, days, annualRate1, annualRate2, spotRate, inverseRate, strikeRate1, strikeRate2, rateType, currency1, currency2);
