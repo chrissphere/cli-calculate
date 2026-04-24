@@ -811,12 +811,13 @@
             document.getElementById('depositCurrencyHeader').textContent = depositCurrency;
 
             const scenarios = [];
-            // 以打和价为中心，正负 chartRangePercent 范围，步进 0.1%
+            // 以打和价为中心，正负 chartRangePercent 范围
             const minRate = breakEvenPrice * (1 - chartRangePercent);
             const maxRate = breakEvenPrice * (1 + chartRangePercent);
-            const step = breakEvenPrice * 0.001; // 步进 0.1%（千分之一）
+            const step = (maxRate - minRate) / 10;
             
-            for (let rate = minRate; rate <= maxRate; rate += step) {
+            for (let i = 0; i <= 10; i++) {
+                const rate = minRate + step * i;
                 scenarios.push(rate);
             }
             // 确保包含行使汇率、打和价、即期汇率
