@@ -53,6 +53,9 @@
         tr:hover { background: #f5f7fa; }
         .profit { color: #28a745; font-weight: 600; }
         .loss { color: #dc3545; font-weight: 600; }
+        .range-btn { padding: 6px 12px; background: #f0f0f0; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; }
+        .range-btn:hover { background: #e0e0e0; }
+        .range-btn.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
         .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .summary-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 12px; text-align: center; }
         .summary-label { font-size: 14px; opacity: 0.9; margin-bottom: 10px; }
@@ -167,6 +170,22 @@
             <div class="card">
                 <div class="card-title">📈 汇率 - 收益对照表（组合 1 & 组合 2）</div>
                 <div class="info-tip" style="margin-bottom: 15px;">💡 两个组合使用同一个 <span id="tableRateLabel">USD/CNY</span> 汇率，但行使汇率独立设置 | 汇总损益列显示具体币种名称</div>
+                
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <label style="font-weight: 600; font-size: 13px;">📊 汇率变动幅度：</label>
+                    <button type="button" onclick="setRateRange(0.01)" class="range-btn" data-range="1%">±1%</button>
+                    <button type="button" onclick="setRateRange(0.02)" class="range-btn" data-range="2%">±2%</button>
+                    <button type="button" onclick="setRateRange(0.03)" class="range-btn" data-range="3%">±3%</button>
+                    <button type="button" onclick="setRateRange(0.05)" class="range-btn" data-range="5%">±5%</button>
+                    <button type="button" onclick="setRateRange(0.08)" class="range-btn" data-range="8%">±8%</button>
+                    <button type="button" onclick="setRateRange(0.10)" class="range-btn" data-range="10%">±10%</button>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <input type="number" id="customRateRange" value="10" step="1" min="1" max="50" style="width: 60px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;">
+                        <span style="font-size: 13px;">%</span>
+                        <button type="button" onclick="setCustomRateRange()" style="padding: 6px 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600;">自定义</button>
+                    </div>
+                </div>
+                
                 <div style="overflow-x: auto;">
                     <table id="comparisonTableDual">
                         <thead>
@@ -221,6 +240,7 @@
         
         let rateProfitChartDual = null;
         let chartDisplayCurrency = 'c1'; // 'c1' 或 'c2'，默认显示组合 1 的存款币种
+        let currentRateRange = 0.10; // 默认 ±10%
 
         function toggleChartCurrency() {
             const c1 = document.getElementById('currency1').value;
@@ -433,6 +453,38 @@
             document.getElementById('chartPrincipalCurrency1').textContent = c1;
             document.getElementById('chartPrincipal2').textContent = formatNumber(p2, 0);
             document.getElementById('chartPrincipalCurrency2').textContent = c2;
+            
+            // 初始化汇率范围按钮状态
+            document.querySelectorAll('.range-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (parseFloat(btn.dataset.range) === currentRateRange * 100) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function setRateRange(range) {
+            currentRateRange = range;
+            // 更新按钮状态
+            document.querySelectorAll('.range-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (parseFloat(btn.dataset.range) === range * 100) {
+                    btn.classList.add('active');
+                }
+            });
+            // 重新计算
+            calculateDual();
+        }
+        
+        function setCustomRateRange() {
+            const custom = parseFloat(document.getElementById('customRateRange').value) / 100;
+            if (custom > 0 && custom <= 0.50) {
+                setRateRange(custom);
+                // 清除预设按钮的 active 状态
+                document.querySelectorAll('.range-btn').forEach(btn => btn.classList.remove('active'));
+            } else {
+                alert('请输入 1-50 之间的数字');
+            }
         }
 
         function generateDualComparisonTable(p1, p2, days, r1, r2, spot, strike1, strike2, c1, c2) {
@@ -442,8 +494,8 @@
             // 更新表头汇率标签
             document.getElementById('tableRateHeader').textContent = `${c1}/${c2}`;
             
-            const minRate = spot * 0.90;
-            const maxRate = spot * 1.10;
+            const minRate = spot * (1 - currentRateRange);
+            const maxRate = spot * (1 + currentRateRange);
             const step = (maxRate - minRate) / 10;
             const regRate = 0.025;
             
@@ -537,7 +589,8 @@
             document.getElementById('chartDisplayCurrency').textContent = chartDisplayCurrency === 'c1' ? c1 : c2;
             document.getElementById('chartCurrencyBtn').textContent = `🔄 切换到 ${chartDisplayCurrency === 'c1' ? c2 : c1} 显示`;
             
-            for (let i = -0.10; i <= 0.10; i += 0.01) {
+            const chartStep = currentRateRange / 10; // 图表也使用相同的范围
+            for (let i = -currentRateRange; i <= currentRateRange; i += chartStep) {
                 const rate = spot * (1 + i);
                 
                 // 组合 1
