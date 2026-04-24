@@ -150,9 +150,9 @@
                     <h3>📌 组合 2：<span id="portfolio2Label">CNY 存款 + USD 挂钩</span></h3>
                     <div class="input-grid">
                         <div class="input-group"><label>💵 本金</label><input type="number" id="principal2" value="50000" step="1000"></div>
-                        <div class="input-group"><label>🎯 行使汇率</label><input type="number" id="strikeRate2" value="0.1379" step="0.0001"></div>
+                        <div class="input-group"><label>🎯 行使汇率</label><input type="number" id="strikeRate2" value="7.2500" step="0.0001"></div>
                         <div class="input-group"><label>📈 CLI 年化利率 (%)</label><input type="number" id="annualRate2" value="6.5" step="0.1"></div>
-                        <div class="input-group"><button type="button" onclick="setStrike2FromSpot()" style="padding: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">= 即期汇率倒数</button></div>
+                        <div class="input-group"><button type="button" onclick="setStrike2FromSpot()" style="padding: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">= 即期汇率</button></div>
                     </div>
                 </div>
             </div>
@@ -202,15 +202,14 @@
             <div class="card">
                 <div class="card-title">📈 汇率 - 收益对照表（组合 1 & 组合 2）</div>
                 <div class="info-tip" style="margin-bottom: 15px;">
-                    💡 由于 rate2 = 1/rate1（严格倒数），两个组合的触发条件互斥：rate1 上涨时组合 1 可能触发，但 rate2 下跌使组合 2 不触发；反之亦然
+                    💡 两个组合使用同一个到期汇率，但行使汇率独立设置。当汇率 > 行使汇率时触发（被换汇）
                 </div>
                 <div style="overflow-x: auto;">
                     <table id="comparisonTableDual">
                         <thead>
                             <tr>
                                 <th>汇率<br>变动</th>
-                                <th>到期汇率<br><small>组合 1</small></th>
-                                <th>到期汇率<br><small>组合 2</small></th>
+                                <th>到期汇率</th>
                                 <th>组合 1<br>触发</th>
                                 <th>组合 1<br>金额</th>
                                 <th>组合 1<br>损益</th>
@@ -261,9 +260,10 @@
             }
             updateLabels();
             updateSpotRateLabel();
+            // 货币变化时，两个行使汇率都同步到当前即期汇率（用户可后续独立修改）
             const spotRate = parseFloat(document.getElementById('spotRate').value) || 1;
             document.getElementById('strikeRate1').value = spotRate.toFixed(4);
-            document.getElementById('strikeRate2').value = (1 / spotRate).toFixed(4);
+            document.getElementById('strikeRate2').value = spotRate.toFixed(4);
         }
 
         function updateLabels() {
@@ -291,7 +291,7 @@
         function setStrike1FromSpot() { document.getElementById('strikeRate1').value = document.getElementById('spotRate').value; }
         function setStrike2FromSpot() {
             const spotRate = parseFloat(document.getElementById('spotRate').value) || 1;
-            document.getElementById('strikeRate2').value = (1 / spotRate).toFixed(4);
+            document.getElementById('strikeRate2').value = spotRate.toFixed(4);
         }
 
         function formatNumber(num, decimals = 2) {
@@ -303,7 +303,7 @@
             const spotRate = parseFloat(document.getElementById('spotRate').value);
             const currency1 = document.getElementById('currency1').value;
             const currency2 = document.getElementById('currency2').value;
-            const inverseRate = 1 / spotRate;
+            // inverseRate 仅用于显示，不再参与组合 2 的计算逻辑
             
             const principal1 = parseFloat(document.getElementById('principal1').value);
             const strikeRate1 = parseFloat(document.getElementById('strikeRate1').value);
@@ -338,19 +338,19 @@
             document.getElementById('cliInterest2').textContent = formatNumber(interest2);
             document.getElementById('totalAmount2').textContent = formatNumber(totalAmount2);
             document.getElementById('breakEven2').textContent = breakEven2.toFixed(4);
-            document.getElementById('conditionText2').textContent = `结构 B（看涨${currency1}）：到期时 ${inverseRate.toFixed(4)} ≤ ${strikeRate2.toFixed(4)} → 获得高息 ${formatNumber(interest2)} ${currency2}`;
+            document.getElementById('conditionText2').textContent = `结构 B（看涨${currency1}）：到期时 ${spotRate.toFixed(4)} ≤ ${strikeRate2.toFixed(4)} → 获得高息 ${formatNumber(interest2)} ${currency2}`;
             
             // 生成合并对照表
-            generateDualComparisonTable(principal1, principal2, days, annualRate1, annualRate2, spotRate, inverseRate, strikeRate1, strikeRate2, breakEven1, breakEven2, currency1, currency2);
+            generateDualComparisonTable(principal1, principal2, days, annualRate1, annualRate2, spotRate, strikeRate1, strikeRate2, currency1, currency2);
             
             // 绘制合并图表
-            drawDualRateProfitChart(principal1, principal2, days, annualRate1, annualRate2, spotRate, inverseRate, strikeRate1, strikeRate2, currency1, currency2);
+            drawDualRateProfitChart(principal1, principal2, days, annualRate1, annualRate2, spotRate, strikeRate1, strikeRate2, currency1, currency2);
             
             document.getElementById('resultSection').style.display = 'block';
             document.getElementById('resultSection').classList.add('show');
         }
 
-        function generateDualComparisonTable(p1, p2, days, r1, r2, spot, invSpot, strike1, strike2, be1, be2, c1, c2) {
+        function generateDualComparisonTable(p1, p2, days, r1, r2, spot, strike1, strike2, c1, c2) {
             const tbody = document.getElementById('comparisonBodyDual');
             tbody.innerHTML = '';
             
@@ -361,35 +361,34 @@
             const regularRate = 0.025;
             
             for (let i = 0; i <= 10; i++) {
-                const rate1 = minSpot + step * i; // USD/CNY
-                const rate2 = 1 / rate1; // CNY/USD = 1/(USD/CNY)，严格倒数关系
-                const changePercent = ((rate1 - spot) / spot) * 100;
+                const rate = minSpot + step * i; // 同一个到期汇率
+                const changePercent = ((rate - spot) / spot) * 100;
                 
-                // 组合 1：结构 B，rate1 (USD/CNY) ≤ strike1 → 拿存款货币 (USD)
-                // 触发 (=被换汇)：rate1 > strike1
-                const triggered1 = rate1 > strike1;
+                // 组合 1：结构 B，rate ≤ strike1 → 拿存款货币 (c1)
+                // 触发 (=被换汇)：rate > strike1
+                const triggered1 = rate > strike1;
                 let final1, converted1;
                 if (triggered1) {
-                    // 被换汇：本金按 strike1 换成 CNY，再按市场汇率 rate1 折回 USD
-                    final1 = p1 * strike1; // 拿到 CNY
-                    converted1 = final1 / rate1; // 折回 USD
+                    // 被换汇：本金按 strike1 换成 c2，再按市场汇率 rate 折回 c1
+                    final1 = p1 * strike1; // 拿到 c2
+                    converted1 = final1 / rate; // 折回 c1
                 } else {
-                    final1 = p1 + p1 * r1 * (days / 365); // 拿回 USD + 利息
+                    final1 = p1 + p1 * r1 * (days / 365); // 拿回 c1 + 利息
                     converted1 = final1;
                 }
                 const reg1 = p1 + p1 * regularRate * (days / 365);
                 const pl1 = converted1 - reg1;
                 
-                // 组合 2：结构 B，rate2 (CNY/USD) ≤ strike2 → 拿存款货币 (CNY)
-                // 触发 (=被换汇)：rate2 > strike2
-                // 关键：rate2 = 1/rate1，所以当 rate1 上涨时 rate2 下跌，触发条件互斥
-                const triggered2 = rate2 > strike2;
+                // 组合 2：结构 B，rate ≤ strike2 → 拿存款货币 (c2)
+                // 触发 (=被换汇)：rate > strike2
+                // 两个组合使用同一个汇率 rate，但行使汇率 strike1/strike2 独立
+                const triggered2 = rate > strike2;
                 let final2, converted2;
                 if (triggered2) {
-                    final2 = p2 * strike2; // 拿到 USD
-                    converted2 = final2 / rate2; // 折回 CNY
+                    final2 = p2 * strike2; // 拿到 c1
+                    converted2 = final2 / rate; // 折回 c2
                 } else {
-                    final2 = p2 + p2 * r2 * (days / 365); // 拿回 CNY + 利息
+                    final2 = p2 + p2 * r2 * (days / 365); // 拿回 c2 + 利息
                     converted2 = final2;
                 }
                 const reg2 = p2 + p2 * regularRate * (days / 365);
@@ -397,8 +396,7 @@
                 
                 const row = `<tr>
                     <td>${changePercent > 0 ? '+' : ''}${changePercent.toFixed(1)}%</td>
-                    <td>${rate1.toFixed(4)}<br><small style="color:#888">${c1}/${c2}</small></td>
-                    <td>${rate2.toFixed(4)}<br><small style="color:#888">${c2}/${c1}</small></td>
+                    <td>${rate.toFixed(4)}</td>
                     <td class="${triggered1 ? 'loss' : 'profit'}">${triggered1 ? '❌' : '✅'}</td>
                     <td>${formatNumber(final1)}<br><small>${triggered1 ? c2 : c1}</small></td>
                     <td class="${pl1 >= 0 ? 'profit' : 'loss'}" style="font-size:11px">${pl1 >= 0 ? '+' : ''}${formatNumber(pl1)}</td>
@@ -410,7 +408,7 @@
             }
         }
 
-        function drawDualRateProfitChart(p1, p2, days, r1, r2, spot, invSpot, strike1, strike2, c1, c2) {
+        function drawDualRateProfitChart(p1, p2, days, r1, r2, spot, strike1, strike2, c1, c2) {
             const ctx = document.getElementById('rateProfitChartDual').getContext('2d');
             if (rateProfitChartDual) rateProfitChartDual.destroy();
             
@@ -419,27 +417,26 @@
             const profits2 = [];
             
             for (let i = -0.10; i <= 0.10; i += 0.01) {
-                const rate1 = spot * (1 + i); // USD/CNY
-                const rate2 = 1 / rate1; // CNY/USD = 严格倒数
+                const rate = spot * (1 + i); // 同一个到期汇率
                 
-                // 组合 1：结构 B，rate1 ≤ strike1 → 拿 USD + 利息
+                // 组合 1：结构 B，rate ≤ strike1 → 拿 c1 + 利息
                 const int1 = p1 * r1 * (days / 365);
                 let final1;
-                if (rate1 <= strike1) {
-                    final1 = p1 + int1; // 未触发，拿回 USD
+                if (rate <= strike1) {
+                    final1 = p1 + int1; // 未触发，拿回 c1
                 } else {
-                    final1 = p1 * strike1 / rate1; // 触发，被换成 CNY 再折回 USD
+                    final1 = p1 * strike1 / rate; // 触发，被换成 c2 再折回 c1
                 }
-                rates.push(rate1.toFixed(4));
+                rates.push(rate.toFixed(4));
                 profits1.push(final1 - p1);
                 
-                // 组合 2：结构 B，rate2 ≤ strike2 → 拿 CNY + 利息
+                // 组合 2：结构 B，rate ≤ strike2 → 拿 c2 + 利息
                 const int2 = p2 * r2 * (days / 365);
                 let final2;
-                if (rate2 <= strike2) {
-                    final2 = p2 + int2; // 未触发，拿回 CNY
+                if (rate <= strike2) {
+                    final2 = p2 + int2; // 未触发，拿回 c2
                 } else {
-                    final2 = p2 * strike2 / rate2; // 触发，被换成 USD 再折回 CNY
+                    final2 = p2 * strike2 / rate; // 触发，被换成 c1 再折回 c2
                 }
                 profits2.push(final2 - p2);
             }
@@ -483,7 +480,7 @@
                     },
                     scales: {
                         x: {
-                            title: { display: true, text: `到期汇率 (${c1}/${c2})` },
+                            title: { display: true, text: `到期汇率` },
                             ticks: { maxRotation: 45, minRotation: 45 }
                         },
                         y: {
