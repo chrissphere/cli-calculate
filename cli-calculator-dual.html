@@ -167,7 +167,7 @@
             
             <div class="card">
                 <div class="card-title">📈 汇率 - 收益对照表（组合 1 & 组合 2）</div>
-                <div class="info-tip" style="margin-bottom: 15px;">💡 两个组合使用同一个 <span id="tableRateLabel">USD/CNY</span> 汇率，但行使汇率独立设置 | 汇总损益已统一转换为组合 1 存款币种</div>
+                <div class="info-tip" style="margin-bottom: 15px;">💡 两个组合使用同一个 <span id="tableRateLabel">USD/CNY</span> 汇率，但行使汇率独立设置 | 汇总损益 1=存款币种，汇总损益 2=看涨币种</div>
                 <div style="overflow-x: auto;">
                     <table id="comparisonTableDual">
                         <thead>
@@ -180,7 +180,8 @@
                                 <th>组合 2<br>触发</th>
                                 <th>组合 2<br>金额</th>
                                 <th>组合 2<br>损益</th>
-                                <th>汇总<br>损益</th>
+                                <th>汇总<br>损益<br><small>存款币种</small></th>
+                                <th>汇总<br>损益<br><small>看涨币种</small></th>
                             </tr>
                         </thead>
                         <tbody id="comparisonBodyDual"></tbody>
@@ -443,7 +444,7 @@
                 const reg2 = p2 + p2 * regRate * (days / 365);
                 const pl2 = conv2 - reg2;
                 
-                // 汇总损益：将组合 2 的损益转换成组合 1 的币种（c1）后相加
+                // 汇总损益 1：以组合 1 存款币种（c1）计算
                 let pl2InC1;
                 if (trig2) {
                     // 组合 2 触发时，final2 是 c1 币种，pl2 已经是 c1 币种
@@ -452,7 +453,26 @@
                     // 组合 2 不触发时，final2 是 c2 币种，pl2 也是 c2 币种，需要转换成 c1
                     pl2InC1 = pl2 / rate;
                 }
-                const plTotal = pl1 + pl2InC1;
+                const plTotalC1 = pl1 + pl2InC1;
+                
+                // 汇总损益 2：以看涨币种（c2）计算
+                let pl1InC2;
+                if (trig1) {
+                    // 组合 1 触发时，final1 是 c2 币种，pl1 已经是 c2 币种
+                    pl1InC2 = pl1;
+                } else {
+                    // 组合 1 不触发时，final1 是 c1 币种，pl1 也是 c1 币种，需要转换成 c2
+                    pl1InC2 = pl1 * rate;
+                }
+                let pl2InC2ForTotal;
+                if (trig2) {
+                    // 组合 2 触发时，final2 是 c1 币种，pl2 是 c1 币种，需要转换成 c2
+                    pl2InC2ForTotal = pl2 * rate;
+                } else {
+                    // 组合 2 不触发时，final2 是 c2 币种，pl2 已经是 c2 币种
+                    pl2InC2ForTotal = pl2;
+                }
+                const plTotalC2 = pl1InC2 + pl2InC2ForTotal;
                 
                 const row = `<tr>
                     <td>${changePct > 0 ? '+' : ''}${changePct.toFixed(1)}%</td>
@@ -463,7 +483,8 @@
                     <td class="${trig2 ? 'loss' : 'profit'}">${trig2 ? '❌' : '✅'}</td>
                     <td>${formatNumber(final2)}<br><small>${trig2 ? c1 : c2}</small></td>
                     <td class="${pl2 >= 0 ? 'profit' : 'loss'}" style="font-size:11px">${pl2 >= 0 ? '+' : ''}${formatNumber(pl2)}</td>
-                    <td class="${plTotal >= 0 ? 'profit' : 'loss'}" style="font-size:11px;font-weight:600">${plTotal >= 0 ? '+' : ''}${formatNumber(plTotal)}</td>
+                    <td class="${plTotalC1 >= 0 ? 'profit' : 'loss'}" style="font-size:11px;font-weight:600">${plTotalC1 >= 0 ? '+' : ''}${formatNumber(plTotalC1)}<br><small>${c1}</small></td>
+                    <td class="${plTotalC2 >= 0 ? 'profit' : 'loss'}" style="font-size:11px;font-weight:600">${plTotalC2 >= 0 ? '+' : ''}${formatNumber(plTotalC2)}<br><small>${c2}</small></td>
                 </tr>`;
                 tbody.insertAdjacentHTML('beforeend', row);
             }
