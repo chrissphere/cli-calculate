@@ -192,7 +192,7 @@
                 <div style="height: 450px; position: relative;">
                     <canvas id="rateProfitChartDual"></canvas>
                 </div>
-                <div class="info-tip">💡 图表显示 <span id="chartRateLabel">USD/CNY</span> 汇率变化对两个组合收益的影响，蓝色=组合 1，紫色=组合 2</div>
+                <div class="info-tip">💡 图表显示 <span id="chartRateLabel">USD/CNY</span> 汇率变化对两个组合收益的影响，蓝色=组合 1，紫色=组合 2，🟢绿色虚线=汇总收益</div>
             </div>
             
             <div class="info-tip">
@@ -460,7 +460,7 @@
             const ctx = document.getElementById('rateProfitChartDual').getContext('2d');
             if (rateProfitChartDual) rateProfitChartDual.destroy();
             
-            const rates = [], prof1 = [], prof2 = [];
+            const rates = [], prof1 = [], prof2 = [], profTotal = [];
             
             // 更新图表 X 轴标签
             document.getElementById('chartRateLabel').textContent = `${c1}/${c2}`;
@@ -485,6 +485,9 @@
                     f2 = c1Amount * rate; // c1 × rate = c2（用到期汇率）
                 }
                 prof2.push(f2 - p2);
+                
+                // 汇总：两个组合的总收益
+                profTotal.push((f1 - p1) + (f2 - p2));
             }
             
             rateProfitChartDual = new Chart(ctx, {
@@ -493,7 +496,8 @@
                     labels: rates,
                     datasets: [
                         { label: `组合${c1}/${c2}`, data: prof1, borderColor: '#667eea', backgroundColor: 'rgba(102, 126, 234, 0.1)', fill: true, tension: 0.4, yAxisID: 'y' },
-                        { label: `组合${c2}/${c1}`, data: prof2, borderColor: '#764ba2', backgroundColor: 'rgba(118, 75, 162, 0.1)', fill: true, tension: 0.4, yAxisID: 'y1' }
+                        { label: `组合${c2}/${c1}`, data: prof2, borderColor: '#764ba2', backgroundColor: 'rgba(118, 75, 162, 0.1)', fill: true, tension: 0.4, yAxisID: 'y1' },
+                        { label: `汇总收益`, data: profTotal, borderColor: '#28a745', backgroundColor: 'rgba(40, 167, 69, 0.1)', borderWidth: 3, borderDash: [5, 5], fill: false, tension: 0.4, yAxisID: 'y' }
                     ]
                 },
                 options: {
