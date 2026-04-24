@@ -133,6 +133,20 @@
                     <label>📅 投资期限 (天)</label>
                     <input type="number" id="days" value="90" step="1" min="1" max="180">
                 </div>
+                <div class="input-group" style="grid-column: 1 / -1;">
+                    <label>💱 汇率报价方式</label>
+                    <div style="display: flex; gap: 20px; align-items: center;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="radio" name="rateType" value="direct" checked onchange="updateRateTypeDisplay()">
+                            <span>直接报价（1 外币 = ? 本币，如 USD/CNY=7.25）</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="radio" name="rateType" value="indirect" onchange="updateRateTypeDisplay()">
+                            <span>间接报价（1 本币 = ? 外币，如 CNY/USD=0.1379）</span>
+                        </label>
+                    </div>
+                    <small id="rateTypeDisplay" style="color: #666; margin-top: 5px;">组合 1：直接报价 | 组合 2：间接报价</small>
+                </div>
             </div>
             
             <div class="dual-portfolio">
@@ -260,10 +274,27 @@
             }
             updateLabels();
             updateSpotRateLabel();
+            updateRateTypeDisplay();
             // 货币变化时，两个行使汇率都同步到当前即期汇率（用户可后续独立修改）
             const spotRate = parseFloat(document.getElementById('spotRate').value) || 1;
             document.getElementById('strikeRate1').value = spotRate.toFixed(4);
             document.getElementById('strikeRate2').value = spotRate.toFixed(4);
+        }
+
+        function updateRateTypeDisplay() {
+            const rateType = document.querySelector('input[name="rateType"]:checked').value;
+            const c1 = document.getElementById('currency1').value;
+            const c2 = document.getElementById('currency2').value;
+            const spotRate = document.getElementById('spotRate').value;
+            const invRate = document.getElementById('inverseRate').value;
+            
+            let displayText;
+            if (rateType === 'direct') {
+                displayText = `组合 1（${c1}存款）：直接报价 ${c1}/${c2} = ${spotRate} | 组合 2（${c2}存款）：间接报价 ${c2}/${c1} = ${invRate}`;
+            } else {
+                displayText = `组合 1（${c1}存款）：间接报价 ${c1}/${c2} = ${invRate} | 组合 2（${c2}存款）：直接报价 ${c2}/${c1} = ${spotRate}`;
+            }
+            document.getElementById('rateTypeDisplay').textContent = displayText;
         }
 
         function updateLabels() {
@@ -303,7 +334,8 @@
             const spotRate = parseFloat(document.getElementById('spotRate').value);
             const currency1 = document.getElementById('currency1').value;
             const currency2 = document.getElementById('currency2').value;
-            // inverseRate 仅用于显示，不再参与组合 2 的计算逻辑
+            const rateType = document.querySelector('input[name="rateType"]:checked').value;
+            const inverseRate = 1 / spotRate;
             
             const principal1 = parseFloat(document.getElementById('principal1').value);
             const strikeRate1 = parseFloat(document.getElementById('strikeRate1').value);
@@ -313,15 +345,27 @@
             const strikeRate2 = parseFloat(document.getElementById('strikeRate2').value);
             const annualRate2 = parseFloat(document.getElementById('annualRate2').value) / 100;
             
-            // 组合 1 计算（结构 B：汇率 ≤ 行使汇率 → 拿存款货币）
+            // 组合 1 计算（结构 B）
             const interest1 = principal1 * annualRate1 * (days / 365);
             const totalAmount1 = principal1 + interest1;
-            const breakEven1 = strikeRate1 * (1 + annualRate1 * (days / 365));
+            // 打和价：根据报价方式调整
+            let breakEven1;
+            if (rateType === 'direct') {
+                breakEven1 = strikeRate1 * (1 + annualRate1 * (days / 365)); // 直接报价：结构 B 打和价 = strike × (1+利息比)
+            } else {
+                breakEven1 = strikeRate1 / (1 + annualRate1 * (days / 365)); // 间接报价：结构 B 打和价 = strike / (1+利息比)
+            }
             
-            // 组合 2 计算（结构 B：汇率 ≤ 行使汇率 → 拿存款货币）
+            // 组合 2 计算（结构 B）
             const interest2 = principal2 * annualRate2 * (days / 365);
             const totalAmount2 = principal2 + interest2;
-            const breakEven2 = strikeRate2 * (1 + annualRate2 * (days / 365));
+            // 组合 2 的报价方式与组合 1 相反
+            let breakEven2;
+            if (rateType === 'direct') {
+                breakEven2 = strikeRate2 / (1 + annualRate2 * (days / 365)); // 组合 1 直接 → 组合 2 间接
+            } else {
+                breakEven2 = strikeRate2 * (1 + annualRate2 * (days / 365)); // 组合 1 间接 → 组合 2 直接
+            }
             
             // 更新汇总
             document.getElementById('totalPrincipal').textContent = formatNumber(principal1 + principal2);
@@ -332,25 +376,27 @@
             document.getElementById('cliInterest1').textContent = formatNumber(interest1);
             document.getElementById('totalAmount1').textContent = formatNumber(totalAmount1);
             document.getElementById('breakEven1').textContent = breakEven1.toFixed(4);
-            document.getElementById('conditionText1').textContent = `结构 B（看涨${currency2}）：到期时 ${spotRate.toFixed(4)} ≤ ${strikeRate1.toFixed(4)} → 获得高息 ${formatNumber(interest1)} ${currency1}`;
+            const triggerCond1 = rateType === 'direct' ? '≤' : '≥';
+            document.getElementById('conditionText1').textContent = `结构 B（看涨${currency2}）：到期时 ${rateType === 'direct' ? spotRate.toFixed(4) : inverseRate.toFixed(4)} ${triggerCond1} ${strikeRate1.toFixed(4)} → 获得高息 ${formatNumber(interest1)} ${currency1}`;
             
             // 更新组合 2 详情
             document.getElementById('cliInterest2').textContent = formatNumber(interest2);
             document.getElementById('totalAmount2').textContent = formatNumber(totalAmount2);
             document.getElementById('breakEven2').textContent = breakEven2.toFixed(4);
-            document.getElementById('conditionText2').textContent = `结构 B（看涨${currency1}）：到期时 ${spotRate.toFixed(4)} ≤ ${strikeRate2.toFixed(4)} → 获得高息 ${formatNumber(interest2)} ${currency2}`;
+            const triggerCond2 = rateType === 'direct' ? '≥' : '≤'; // 组合 2 与组合 1 相反
+            document.getElementById('conditionText2').textContent = `结构 B（看涨${currency1}）：到期时 ${rateType === 'direct' ? inverseRate.toFixed(4) : spotRate.toFixed(4)} ${triggerCond2} ${strikeRate2.toFixed(4)} → 获得高息 ${formatNumber(interest2)} ${currency2}`;
             
             // 生成合并对照表
-            generateDualComparisonTable(principal1, principal2, days, annualRate1, annualRate2, spotRate, strikeRate1, strikeRate2, currency1, currency2);
+            generateDualComparisonTable(principal1, principal2, days, annualRate1, annualRate2, spotRate, inverseRate, strikeRate1, strikeRate2, rateType, currency1, currency2);
             
             // 绘制合并图表
-            drawDualRateProfitChart(principal1, principal2, days, annualRate1, annualRate2, spotRate, strikeRate1, strikeRate2, currency1, currency2);
+            drawDualRateProfitChart(principal1, principal2, days, annualRate1, annualRate2, spotRate, inverseRate, strikeRate1, strikeRate2, rateType, currency1, currency2);
             
             document.getElementById('resultSection').style.display = 'block';
             document.getElementById('resultSection').classList.add('show');
         }
 
-        function generateDualComparisonTable(p1, p2, days, r1, r2, spot, strike1, strike2, c1, c2) {
+        function generateDualComparisonTable(p1, p2, days, r1, r2, spot, invSpot, strike1, strike2, rateType, c1, c2) {
             const tbody = document.getElementById('comparisonBodyDual');
             tbody.innerHTML = '';
             
@@ -361,34 +407,47 @@
             const regularRate = 0.025;
             
             for (let i = 0; i <= 10; i++) {
-                const rate = minSpot + step * i; // 同一个到期汇率
-                const changePercent = ((rate - spot) / spot) * 100;
+                const rateSpot = minSpot + step * i; // USD/CNY
+                const rateInv = 1 / rateSpot; // CNY/USD
+                const changePercent = ((rateSpot - spot) / spot) * 100;
                 
-                // 组合 1：结构 B，rate ≤ strike1 → 拿存款货币 (c1)
-                // 触发 (=被换汇)：rate > strike1
-                const triggered1 = rate > strike1;
-                let final1, converted1;
-                if (triggered1) {
-                    // 被换汇：本金按 strike1 换成 c2，再按市场汇率 rate 折回 c1
-                    final1 = p1 * strike1; // 拿到 c2
-                    converted1 = final1 / rate; // 折回 c1
+                // 组合 1 判断
+                let rate1, triggered1, final1, converted1;
+                if (rateType === 'direct') {
+                    // 组合 1：直接报价，结构 B：rate ≤ strike → 不触发
+                    rate1 = rateSpot;
+                    triggered1 = rate1 > strike1;
                 } else {
-                    final1 = p1 + p1 * r1 * (days / 365); // 拿回 c1 + 利息
+                    // 组合 1：间接报价，结构 B：rate ≥ strike → 不触发 (触发 = rate < strike)
+                    rate1 = rateInv;
+                    triggered1 = rate1 < strike1;
+                }
+                if (triggered1) {
+                    final1 = p1 * strike1;
+                    converted1 = rateType === 'direct' ? final1 / rate1 : final1 * rate1;
+                } else {
+                    final1 = p1 + p1 * r1 * (days / 365);
                     converted1 = final1;
                 }
                 const reg1 = p1 + p1 * regularRate * (days / 365);
                 const pl1 = converted1 - reg1;
                 
-                // 组合 2：结构 B，rate ≤ strike2 → 拿存款货币 (c2)
-                // 触发 (=被换汇)：rate > strike2
-                // 两个组合使用同一个汇率 rate，但行使汇率 strike1/strike2 独立
-                const triggered2 = rate > strike2;
-                let final2, converted2;
-                if (triggered2) {
-                    final2 = p2 * strike2; // 拿到 c1
-                    converted2 = final2 / rate; // 折回 c2
+                // 组合 2 判断（报价方式与组合 1 相反）
+                let rate2, triggered2, final2, converted2;
+                if (rateType === 'direct') {
+                    // 组合 2：间接报价，结构 B：rate ≥ strike → 不触发 (触发 = rate < strike)
+                    rate2 = rateInv;
+                    triggered2 = rate2 < strike2;
                 } else {
-                    final2 = p2 + p2 * r2 * (days / 365); // 拿回 c2 + 利息
+                    // 组合 2：直接报价，结构 B：rate ≤ strike → 不触发
+                    rate2 = rateSpot;
+                    triggered2 = rate2 > strike2;
+                }
+                if (triggered2) {
+                    final2 = p2 * strike2;
+                    converted2 = rateType === 'direct' ? final2 * rate2 : final2 / rate2;
+                } else {
+                    final2 = p2 + p2 * r2 * (days / 365);
                     converted2 = final2;
                 }
                 const reg2 = p2 + p2 * regularRate * (days / 365);
@@ -396,7 +455,7 @@
                 
                 const row = `<tr>
                     <td>${changePercent > 0 ? '+' : ''}${changePercent.toFixed(1)}%</td>
-                    <td>${rate.toFixed(4)}</td>
+                    <td>${rateSpot.toFixed(4)}<br><small style="color:#888">${c1}/${c2}</small><br>${rateInv.toFixed(4)}<br><small style="color:#888">${c2}/${c1}</small></td>
                     <td class="${triggered1 ? 'loss' : 'profit'}">${triggered1 ? '❌' : '✅'}</td>
                     <td>${formatNumber(final1)}<br><small>${triggered1 ? c2 : c1}</small></td>
                     <td class="${pl1 >= 0 ? 'profit' : 'loss'}" style="font-size:11px">${pl1 >= 0 ? '+' : ''}${formatNumber(pl1)}</td>
@@ -408,7 +467,7 @@
             }
         }
 
-        function drawDualRateProfitChart(p1, p2, days, r1, r2, spot, strike1, strike2, c1, c2) {
+        function drawDualRateProfitChart(p1, p2, days, r1, r2, spot, invSpot, strike1, strike2, rateType, c1, c2) {
             const ctx = document.getElementById('rateProfitChartDual').getContext('2d');
             if (rateProfitChartDual) rateProfitChartDual.destroy();
             
@@ -417,26 +476,47 @@
             const profits2 = [];
             
             for (let i = -0.10; i <= 0.10; i += 0.01) {
-                const rate = spot * (1 + i); // 同一个到期汇率
+                const rateSpot = spot * (1 + i);
+                const rateInv = 1 / rateSpot;
                 
-                // 组合 1：结构 B，rate ≤ strike1 → 拿 c1 + 利息
+                // 组合 1
                 const int1 = p1 * r1 * (days / 365);
-                let final1;
-                if (rate <= strike1) {
-                    final1 = p1 + int1; // 未触发，拿回 c1
+                let rate1, final1;
+                if (rateType === 'direct') {
+                    rate1 = rateSpot;
+                    if (rate1 <= strike1) {
+                        final1 = p1 + int1;
+                    } else {
+                        final1 = p1 * strike1 / rate1;
+                    }
                 } else {
-                    final1 = p1 * strike1 / rate; // 触发，被换成 c2 再折回 c1
+                    rate1 = rateInv;
+                    if (rate1 >= strike1) {
+                        final1 = p1 + int1;
+                    } else {
+                        final1 = p1 * strike1 * rate1;
+                    }
                 }
-                rates.push(rate.toFixed(4));
+                rates.push(rateSpot.toFixed(4));
                 profits1.push(final1 - p1);
                 
-                // 组合 2：结构 B，rate ≤ strike2 → 拿 c2 + 利息
+                // 组合 2（报价方式相反）
                 const int2 = p2 * r2 * (days / 365);
-                let final2;
-                if (rate <= strike2) {
-                    final2 = p2 + int2; // 未触发，拿回 c2
+                let rate2, final2;
+                if (rateType === 'direct') {
+                    rate2 = rateInv;
+                    if (rate2 >= strike2) {
+                        final2 = p2 + int2;
+                    } else {
+                        final2 = p2 * strike2 * rate2;
+                    }
                 } else {
-                    final2 = p2 * strike2 / rate; // 触发，被换成 c1 再折回 c2
+                    rate2 = rateSpot;
+                    if (rate2 <= strike2) {
+                        final2 = p2 + int2;
+                    } else {
+                        final2 = p2 * strike2 / rate2;
+                    }
                 }
                 profits2.push(final2 - p2);
             }
