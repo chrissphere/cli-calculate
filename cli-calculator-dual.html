@@ -167,7 +167,7 @@
             
             <div class="card">
                 <div class="card-title">📈 汇率 - 收益对照表（组合 1 & 组合 2）</div>
-                <div class="info-tip" style="margin-bottom: 15px;">💡 两个组合使用同一个 <span id="tableRateLabel">USD/CNY</span> 汇率，但行使汇率独立设置 | 汇总损益 1=存款币种，汇总损益 2=看涨币种</div>
+                <div class="info-tip" style="margin-bottom: 15px;">💡 两个组合使用同一个 <span id="tableRateLabel">USD/CNY</span> 汇率，但行使汇率独立设置 | 汇总损益列显示具体币种名称</div>
                 <div style="overflow-x: auto;">
                     <table id="comparisonTableDual">
                         <thead>
@@ -180,8 +180,8 @@
                                 <th>组合 2<br>触发</th>
                                 <th>组合 2<br>金额</th>
                                 <th>组合 2<br>损益</th>
-                                <th>汇总<br>损益<br><small>存款币种</small></th>
-                                <th>汇总<br>损益<br><small>看涨币种</small></th>
+                                <th>汇总<br>损益<br><small id="totalPLCurrency1">AUD</small></th>
+                                <th>汇总<br>损益<br><small id="totalPLCurrency2">USD</small></th>
                             </tr>
                         </thead>
                         <tbody id="comparisonBodyDual"></tbody>
@@ -353,6 +353,9 @@
             // 更新表格中的汇率标签
             document.getElementById('tableRateLabel').textContent = `${c1}/${c2}`;
             document.getElementById('tableRateHeader').textContent = `${c1}/${c2}`;
+            // 更新汇总损益列的币种标签
+            document.getElementById('totalPLCurrency1').textContent = c1;
+            document.getElementById('totalPLCurrency2').textContent = c2;
             
             const p1 = parseFloat(document.getElementById('principal1').value);
             const strike1 = parseFloat(document.getElementById('strikeRate1').value);
@@ -483,8 +486,8 @@
                     <td class="${trig2 ? 'loss' : 'profit'}">${trig2 ? '❌' : '✅'}</td>
                     <td>${formatNumber(final2)}<br><small>${trig2 ? c1 : c2}</small></td>
                     <td class="${pl2 >= 0 ? 'profit' : 'loss'}" style="font-size:11px">${pl2 >= 0 ? '+' : ''}${formatNumber(pl2)}</td>
-                    <td class="${plTotalC1 >= 0 ? 'profit' : 'loss'}" style="font-size:11px;font-weight:600">${plTotalC1 >= 0 ? '+' : ''}${formatNumber(plTotalC1)}<br><small>${c1}</small></td>
-                    <td class="${plTotalC2 >= 0 ? 'profit' : 'loss'}" style="font-size:11px;font-weight:600">${plTotalC2 >= 0 ? '+' : ''}${formatNumber(plTotalC2)}<br><small>${c2}</small></td>
+                    <td class="${plTotalC1 >= 0 ? 'profit' : 'loss'}" style="font-size:11px;font-weight:600">${plTotalC1 >= 0 ? '+' : ''}${formatNumber(plTotalC1)}</td>
+                    <td class="${plTotalC2 >= 0 ? 'profit' : 'loss'}" style="font-size:11px;font-weight:600">${plTotalC2 >= 0 ? '+' : ''}${formatNumber(plTotalC2)}</td>
                 </tr>`;
                 tbody.insertAdjacentHTML('beforeend', row);
             }
