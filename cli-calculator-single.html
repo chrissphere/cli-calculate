@@ -1412,6 +1412,64 @@
                 }
             });
         }
+        
+        // 本地存储功能
+        const STORAGE_KEY_SINGLE = 'cli_single_params_v1';
+        
+        function saveParamsSingle() {
+            const params = {
+                depositCurrency: document.getElementById('depositCurrency').value,
+                linkedCurrency: document.getElementById('linkedCurrency').value,
+                rateType: document.querySelector('input[name="rateType"]:checked').value,
+                structure: currentStructure,
+                principal: document.getElementById('principal').value,
+                spotRate: document.getElementById('spotRate').value,
+                strikeRate: document.getElementById('strikeRate').value,
+                annualRate: document.getElementById('annualRate').value,
+                days: document.getElementById('days').value,
+                regularRate: document.getElementById('regularRate').value,
+                chartRange: document.getElementById('chartRange').value
+            };
+            localStorage.setItem(STORAGE_KEY_SINGLE, JSON.stringify(params));
+        }
+        
+        function loadParamsSingle() {
+            const saved = localStorage.getItem(STORAGE_KEY_SINGLE);
+            if (!saved) return;
+            
+            try {
+                const params = JSON.parse(saved);
+                if (params.depositCurrency) document.getElementById('depositCurrency').value = params.depositCurrency;
+                if (params.linkedCurrency) document.getElementById('linkedCurrency').value = params.linkedCurrency;
+                if (params.rateType) {
+                    const radio = document.querySelector(`input[name="rateType"][value="${params.rateType}"]`);
+                    if (radio) radio.checked = true;
+                }
+                if (params.structure) selectStructure(params.structure);
+                if (params.principal) document.getElementById('principal').value = params.principal;
+                if (params.spotRate) document.getElementById('spotRate').value = params.spotRate;
+                if (params.strikeRate) document.getElementById('strikeRate').value = params.strikeRate;
+                if (params.annualRate) document.getElementById('annualRate').value = params.annualRate;
+                if (params.days) document.getElementById('days').value = params.days;
+                if (params.regularRate) document.getElementById('regularRate').value = params.regularRate;
+                if (params.chartRange) document.getElementById('chartRange').value = params.chartRange;
+            } catch (e) {
+                console.error('加载保存参数失败:', e);
+            }
+        }
+        
+        // 页面加载时恢复参数
+        window.addEventListener('DOMContentLoaded', function() {
+            loadParamsSingle();
+            onCurrencyChange();
+        });
+        
+        // 监听输入变化，自动保存
+        document.addEventListener('input', function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+                saveParamsSingle();
+            }
+        });
     </script>
 </body>
 </html>
