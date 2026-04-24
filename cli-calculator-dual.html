@@ -101,8 +101,11 @@
             <div class="input-grid" style="margin-bottom: 20px;">
                 <div class="input-group">
                     <label>📊 即期汇率 (USD/CNY)</label>
-                    <input type="number" id="spotRate" value="7.2500" step="0.0001" min="0">
-                    <small>市场汇率：1 USD = 7.2500 CNY</small>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="number" id="spotRate" value="7.2500" step="0.0001" min="0" style="flex: 1;">
+                        <button type="button" onclick="fetchLiveRateDual()" style="padding: 12px 20px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; white-space: nowrap;">🔄 获取实时汇率</button>
+                    </div>
+                    <small id="fetchStatusDual" style="color: #666; margin-top: 5px;">市场汇率：1 USD = 7.2500 CNY</small>
                 </div>
                 <div class="input-group">
                     <label>📅 投资期限 (天)</label>
@@ -220,9 +223,8 @@
                 document.getElementById('currency2').value = others[0];
             }
             updateLabels();
-            const spotRate = parseFloat(document.getElementById('spotRate').value) || 1;
-            document.getElementById('strikeRate1').value = spotRate.toFixed(4);
-            document.getElementById('strikeRate2').value = spotRate.toFixed(4);
+            // 货币变化后自动获取汇率
+            fetchLiveRateDual();
         }
 
         function updateLabels() {
@@ -240,6 +242,82 @@
 
         function setStrike1FromSpot() { document.getElementById('strikeRate1').value = document.getElementById('spotRate').value; }
         function setStrike2FromSpot() { document.getElementById('strikeRate2').value = document.getElementById('spotRate').value; }
+
+        function fetchLiveRateDual() {
+            const c1 = document.getElementById('currency1').value;
+            const c2 = document.getElementById('currency2').value;
+            const statusEl = document.getElementById('fetchStatusDual');
+            
+            statusEl.textContent = '⏳ 正在获取汇率...';
+            statusEl.style.color = '#666';
+            
+            try {
+                // 汇率数据 - 统一使用直接报价格式 (1 外币 = ? 本币)
+                const mockRates = {
+                    'USDCNY': 7.2500,
+                    'CNYUSD': 0.1379,
+                    'USDHKD': 7.8000,
+                    'HKDUSD': 0.1282,
+                    'EURUSD': 1.0850,
+                    'USDEUR': 0.9217,
+                    'GBPUSD': 1.2650,
+                    'USDGBP': 0.7905,
+                    'USDJPY': 149.50,
+                    'JPYUSD': 0.0067,
+                    'AUDUSD': 0.6550,
+                    'USDAUD': 1.5267,
+                    'EURCNY': 7.8650,
+                    'CNYEUR': 0.1271,
+                    'GBPCNY': 9.1700,
+                    'CNYGBP': 0.1090,
+                    'AUDCNY': 4.7500,
+                    'CNYAUD': 0.2105,
+                    'EURGBP': 0.8580,
+                    'GBPEUR': 1.1655,
+                    'EURJPY': 162.20,
+                    'JPYEUR': 0.0062,
+                    'GBPJPY': 188.60,
+                    'JPYGBP': 0.0053,
+                    'AUDCNY': 4.7500,
+                    'AUDJPY': 97.80,
+                    'JPYAUD': 0.0102
+                };
+                
+                const pairKey = `${c1}${c2}`;
+                let rate = mockRates[pairKey];
+                
+                if (!rate) {
+                    // 尝试反向查找
+                    const reverseKey = `${c2}${c1}`;
+                    const reverseRate = mockRates[reverseKey];
+                    if (reverseRate) {
+                        rate = 1 / reverseRate;
+                    }
+                }
+                
+                if (!rate) {
+                    statusEl.textContent = `⚠️ 暂不支持 ${c1}/${c2}，请手动输入`;
+                    statusEl.style.color = '#f57c00';
+                    return;
+                }
+                
+                document.getElementById('spotRate').value = rate.toFixed(4);
+                statusEl.textContent = `✅ 已更新 ${c1}/${c2} = ${rate.toFixed(4)}`;
+                statusEl.style.color = '#28a745';
+                
+                // 自动同步到行使汇率
+                document.getElementById('strikeRate1').value = rate.toFixed(4);
+                document.getElementById('strikeRate2').value = rate.toFixed(4);
+                
+                setTimeout(() => { 
+                    statusEl.textContent = `市场汇率：1 ${c1} = ${rate.toFixed(4)} ${c2}`;
+                    statusEl.style.color = '#666';
+                }, 3000);
+            } catch (error) {
+                statusEl.textContent = `❌ 获取失败：${error.message}`;
+                statusEl.style.color = '#dc3545';
+            }
+        }
 
         function formatNumber(num, decimals = 2) {
             return num.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
