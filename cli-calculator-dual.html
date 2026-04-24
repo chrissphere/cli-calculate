@@ -292,65 +292,40 @@
                 </div>
             </div>
             
-            <!-- 汇率 - 收益对照表（组合 1） -->
+            <!-- 汇率 - 收益对照表（合并） -->
             <div class="card">
-                <div class="card-title">📈 汇率 - 收益对照表（组合 1）</div>
+                <div class="card-title">📈 汇率 - 收益对照表（组合 1 & 组合 2）</div>
                 <div style="overflow-x: auto;">
-                    <table id="comparisonTable1">
+                    <table id="comparisonTableDual">
                         <thead>
                             <tr>
                                 <th>汇率变动</th>
-                                <th>到期汇率</th>
-                                <th>触发情况</th>
-                                <th>最终获得货币</th>
-                                <th>获得金额</th>
-                                <th>vs 定期存款</th>
+                                <th>到期汇率<br><small>组合 1</small></th>
+                                <th>到期汇率<br><small>组合 2</small></th>
+                                <th>组合 1 触发</th>
+                                <th>组合 1 金额</th>
+                                <th>组合 1 vs 定期</th>
+                                <th>组合 2 触发</th>
+                                <th>组合 2 金额</th>
+                                <th>组合 2 vs 定期</th>
                             </tr>
                         </thead>
-                        <tbody id="comparisonBody1"></tbody>
+                        <tbody id="comparisonBodyDual"></tbody>
                     </table>
                 </div>
-            </div>
-            
-            <!-- 汇率 - 收益对照表（组合 2） -->
-            <div class="card">
-                <div class="card-title">📈 汇率 - 收益对照表（组合 2）</div>
-                <div style="overflow-x: auto;">
-                    <table id="comparisonTable2">
-                        <thead>
-                            <tr>
-                                <th>汇率变动</th>
-                                <th>到期汇率</th>
-                                <th>触发情况</th>
-                                <th>最终获得货币</th>
-                                <th>获得金额</th>
-                                <th>vs 定期存款</th>
-                            </tr>
-                        </thead>
-                        <tbody id="comparisonBody2"></tbody>
-                    </table>
+                <div class="info-tip" style="margin-top: 10px;">
+                    💡 表格显示同一汇率变动下两个组合的收益对比
                 </div>
             </div>
             
-            <!-- 汇率 - 收益关系图（组合 1） -->
+            <!-- 汇率 - 收益关系图（合并） -->
             <div class="card">
-                <div class="card-title">📈 汇率 - 收益关系图（组合 1）</div>
-                <div style="height: 400px; position: relative;">
-                    <canvas id="rateProfitChart1"></canvas>
+                <div class="card-title">📈 汇率 - 收益关系图（组合 1 & 组合 2）</div>
+                <div style="height: 450px; position: relative;">
+                    <canvas id="rateProfitChartDual"></canvas>
                 </div>
                 <div class="info-tip" style="margin-top: 10px;">
-                    💡 图表显示到期汇率变化对组合 1 收益的影响
-                </div>
-            </div>
-            
-            <!-- 汇率 - 收益关系图（组合 2） -->
-            <div class="card">
-                <div class="card-title">📈 汇率 - 收益关系图（组合 2）</div>
-                <div style="height: 400px; position: relative;">
-                    <canvas id="rateProfitChart2"></canvas>
-                </div>
-                <div class="info-tip" style="margin-top: 10px;">
-                    💡 图表显示到期汇率变化对组合 2 收益的影响
+                    💡 图表显示同一汇率变动下两个组合的收益对比，蓝色=组合 1，紫色=组合 2
                 </div>
             </div>
             
@@ -376,8 +351,7 @@
     </script>
     
     <script>
-        let rateProfitChart1 = null;
-        let rateProfitChart2 = null;
+        let rateProfitChartDual = null;
 
         // 货币变化
         function onCurrencyChange() {
@@ -485,20 +459,18 @@
             const inverseRate = 1 / spotRate;
             document.getElementById('conditionText2').textContent = `结构 B（看涨${currency1}）：到期时 ${inverseRate.toFixed(4)} ≤ ${strikeRate2.toFixed(4)} → 获得高息 ${formatNumber(cliInterest2)} ${currency2}`;
             
-            // 生成对照表
-            generateComparisonTable(1, principal1, days, annualRate1, spotRate, strikeRate1, currency1, currency2);
-            generateComparisonTable(2, principal2, days, annualRate2, inverseRate, strikeRate2, currency2, currency1);
+            // 生成合并对照表
+            generateDualComparisonTable(principal1, principal2, days, annualRate1, annualRate2, spotRate, inverseRate, strikeRate1, strikeRate2, currency1, currency2);
             
-            // 绘制图表
-            drawRateProfitChart(1, principal1, days, annualRate1, spotRate, strikeRate1, currency1);
-            drawRateProfitChart(2, principal2, days, annualRate2, inverseRate, strikeRate2, currency2);
+            // 绘制合并图表
+            drawDualRateProfitChart(principal1, principal2, days, annualRate1, annualRate2, spotRate, inverseRate, strikeRate1, strikeRate2, currency1, currency2);
             
             document.getElementById('resultSection').style.display = 'block';
             document.getElementById('resultSection').classList.add('show');
         }
 
-        function generateComparisonTable(portfolioNum, principal, days, annualRate, spotRate, strikeRate, depositCurrency, linkedCurrency) {
-            const tbody = document.getElementById(`comparisonBody${portfolioNum}`);
+        function generateDualComparisonTable(principal1, principal2, days, annualRate1, annualRate2, spotRate, inverseRate, strikeRate1, strikeRate2, currency1, currency2) {
+            const tbody = document.getElementById('comparisonBodyDual');
             tbody.innerHTML = '';
             
             const steps = 10;
@@ -507,79 +479,123 @@
             
             for (let i = 0; i <= steps; i++) {
                 const changePercent = -range + (i * stepSize);
-                const rate = spotRate * (1 + changePercent);
-                const cliInterest = principal * annualRate * (days / 365);
                 
-                let finalAmount, trigger;
-                // 结构 B：汇率 ≤ 行使汇率 → 获得高息
-                if (rate <= strikeRate) {
-                    finalAmount = principal + cliInterest;
-                    trigger = '✓ 获得高息';
+                // 组合 1 汇率（spotRate 变动）
+                const rate1 = spotRate * (1 + changePercent);
+                const cliInterest1 = principal1 * annualRate1 * (days / 365);
+                let finalAmount1, trigger1;
+                if (rate1 <= strikeRate1) {
+                    finalAmount1 = principal1 + cliInterest1;
+                    trigger1 = '✓';
                 } else {
-                    const lossRate = (rate - strikeRate) / strikeRate;
-                    finalAmount = principal * (1 - lossRate) + cliInterest;
-                    trigger = '✗ 被换汇';
+                    const lossRate = (rate1 - strikeRate1) / strikeRate1;
+                    finalAmount1 = principal1 * (1 - lossRate) + cliInterest1;
+                    trigger1 = '✗';
                 }
+                const regularInterest1 = principal1 * 0.025 * (days / 365);
+                const vsRegular1 = finalAmount1 - principal1 - regularInterest1;
                 
-                // 假设定期存款利率 2.5%
-                const regularInterest = principal * 0.025 * (days / 365);
-                const vsRegular = finalAmount - principal - regularInterest;
+                // 组合 2 汇率（inverseRate 同向变动）
+                const rate2 = inverseRate * (1 + changePercent);
+                const cliInterest2 = principal2 * annualRate2 * (days / 365);
+                let finalAmount2, trigger2;
+                if (rate2 <= strikeRate2) {
+                    finalAmount2 = principal2 + cliInterest2;
+                    trigger2 = '✓';
+                } else {
+                    const lossRate = (rate2 - strikeRate2) / strikeRate2;
+                    finalAmount2 = principal2 * (1 - lossRate) + cliInterest2;
+                    trigger2 = '✗';
+                }
+                const regularInterest2 = principal2 * 0.025 * (days / 365);
+                const vsRegular2 = finalAmount2 - principal2 - regularInterest2;
                 
                 const row = `<tr>
                     <td>${(changePercent * 100).toFixed(1)}%</td>
-                    <td>${rate.toFixed(4)}</td>
-                    <td>${trigger}</td>
-                    <td>${depositCurrency}</td>
-                    <td>${formatNumber(finalAmount)}</td>
-                    <td class="${vsRegular >= 0 ? 'profit' : 'loss'}">${vsRegular >= 0 ? '+' : ''}${formatNumber(vsRegular)}</td>
+                    <td>${rate1.toFixed(4)}<br><small style="color:#888">${currency1}/${currency2}</small></td>
+                    <td>${rate2.toFixed(4)}<br><small style="color:#888">${currency2}/${currency1}</small></td>
+                    <td>${trigger1}</td>
+                    <td>${formatNumber(finalAmount1)}<br><small>${currency1}</small></td>
+                    <td class="${vsRegular1 >= 0 ? 'profit' : 'loss'}" style="font-size:12px">${vsRegular1 >= 0 ? '+' : ''}${formatNumber(vsRegular1)}</td>
+                    <td>${trigger2}</td>
+                    <td>${formatNumber(finalAmount2)}<br><small>${currency2}</small></td>
+                    <td class="${vsRegular2 >= 0 ? 'profit' : 'loss'}" style="font-size:12px">${vsRegular2 >= 0 ? '+' : ''}${formatNumber(vsRegular2)}</td>
                 </tr>`;
                 tbody.innerHTML += row;
             }
         }
 
-        function drawRateProfitChart(portfolioNum, principal, days, annualRate, spotRate, strikeRate, depositCurrency) {
-            const ctx = document.getElementById(`rateProfitChart${portfolioNum}`).getContext('2d');
+        function drawDualRateProfitChart(principal1, principal2, days, annualRate1, annualRate2, spotRate, inverseRate, strikeRate1, strikeRate2, currency1, currency2) {
+            const ctx = document.getElementById('rateProfitChartDual').getContext('2d');
             
             // 销毁旧图表
-            if (portfolioNum === 1 && rateProfitChart1) rateProfitChart1.destroy();
-            if (portfolioNum === 2 && rateProfitChart2) rateProfitChart2.destroy();
+            if (rateProfitChartDual) rateProfitChartDual.destroy();
             
-            const rates = [];
-            const profits = [];
+            const rates1 = [];
+            const rates2 = [];
+            const profits1 = [];
+            const profits2 = [];
             
             for (let i = -0.10; i <= 0.10; i += 0.01) {
-                const rate = spotRate * (1 + i);
-                const cliInterest = principal * annualRate * (days / 365);
-                let finalAmount;
-                
-                // 结构 B：汇率 ≤ 行使汇率 → 获得高息
-                if (rate <= strikeRate) {
-                    finalAmount = principal + cliInterest;
+                // 组合 1
+                const rate1 = spotRate * (1 + i);
+                const cliInterest1 = principal1 * annualRate1 * (days / 365);
+                let finalAmount1;
+                if (rate1 <= strikeRate1) {
+                    finalAmount1 = principal1 + cliInterest1;
                 } else {
-                    const lossRate = (rate - strikeRate) / strikeRate;
-                    finalAmount = principal * (1 - lossRate) + cliInterest;
+                    const lossRate = (rate1 - strikeRate1) / strikeRate1;
+                    finalAmount1 = principal1 * (1 - lossRate) + cliInterest1;
                 }
+                rates1.push(rate1.toFixed(4));
+                profits1.push(finalAmount1 - principal1);
                 
-                rates.push(rate.toFixed(4));
-                profits.push(finalAmount - principal);
+                // 组合 2
+                const rate2 = inverseRate * (1 + i);
+                const cliInterest2 = principal2 * annualRate2 * (days / 365);
+                let finalAmount2;
+                if (rate2 <= strikeRate2) {
+                    finalAmount2 = principal2 + cliInterest2;
+                } else {
+                    const lossRate = (rate2 - strikeRate2) / strikeRate2;
+                    finalAmount2 = principal2 * (1 - lossRate) + cliInterest2;
+                }
+                rates2.push(rate2.toFixed(4));
+                profits2.push(finalAmount2 - principal2);
             }
             
             const chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: rates,
-                    datasets: [{
-                        label: 'CLI 收益',
-                        data: profits,
-                        borderColor: portfolioNum === 1 ? '#667eea' : '#764ba2',
-                        backgroundColor: portfolioNum === 1 ? 'rgba(102, 126, 234, 0.1)' : 'rgba(118, 75, 162, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }]
+                    labels: rates1,
+                    datasets: [
+                        {
+                            label: `组合 1 收益 (${currency1})`,
+                            data: profits1,
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: `组合 2 收益 (${currency2})`,
+                            data: profits2,
+                            borderColor: '#764ba2',
+                            backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
                     plugins: {
                         legend: { display: true },
                         tooltip: {
@@ -590,21 +606,29 @@
                     },
                     scales: {
                         x: {
-                            title: { display: true, text: '到期汇率' },
+                            title: { display: true, text: '汇率变动 (%)' },
                             ticks: { maxRotation: 45, minRotation: 45 }
                         },
                         y: {
-                            title: { display: true, text: `收益 (${depositCurrency})` }
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: `组合 1 收益 (${currency1})` }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false
+                            },
+                            title: { display: true, text: `组合 2 收益 (${currency2})` }
                         }
                     }
                 }
             });
             
-            if (portfolioNum === 1) {
-                rateProfitChart1 = chart;
-            } else {
-                rateProfitChart2 = chart;
-            }
+            rateProfitChartDual = chart;
         }
 
         // 初始化
