@@ -239,8 +239,9 @@
         function updateLabels() {
             const c1 = document.getElementById('currency1').value;
             const c2 = document.getElementById('currency2').value;
-            document.getElementById('portfolio1Label').textContent = `${c1}存款 + ${c2}挂钩`;
-            document.getElementById('portfolio2Label').textContent = `${c2}存款 + ${c1}挂钩`;
+            // 组合名称格式：组合{存款币种/看涨币种}
+            document.getElementById('portfolio1Label').textContent = `组合${c1}/${c2}`;
+            document.getElementById('portfolio2Label').textContent = `组合${c2}/${c1}`;
             document.getElementById('interestCurrency1').textContent = c1;
             document.getElementById('interestCurrency2').textContent = c2;
             document.getElementById('currency1Label').textContent = c1;
@@ -377,12 +378,12 @@
             document.getElementById('cliInterest1').textContent = formatNumber(int1);
             document.getElementById('totalAmount1').textContent = formatNumber(total1);
             document.getElementById('breakEven1').textContent = be1.toFixed(4);
-            document.getElementById('conditionText1').textContent = `结构 B（看涨${c2}）：到期时 USD/CNY ≤ ${strike1.toFixed(4)} → 获得高息 ${formatNumber(int1)} ${c1}`;
+            document.getElementById('conditionText1').textContent = `组合${c1}/${c2}（结构 B）：到期时 ${c1}/${c2} ≤ ${strike1.toFixed(4)} → 获得高息 ${formatNumber(int1)} ${c1}`;
             
             document.getElementById('cliInterest2').textContent = formatNumber(int2);
             document.getElementById('totalAmount2').textContent = formatNumber(total2);
             document.getElementById('breakEven2').textContent = be2.toFixed(4);
-            document.getElementById('conditionText2').textContent = `结构 B（看涨${c1}）：到期时 ${c1}/${c2} ≥ ${strike2.toFixed(4)} → 获得高息 ${formatNumber(int2)} ${c2}`;
+            document.getElementById('conditionText2').textContent = `组合${c2}/${c1}（结构 B）：到期时 ${c1}/${c2} ≥ ${strike2.toFixed(4)} → 获得高息 ${formatNumber(int2)} ${c2}`;
             
             // 更新图表标签
             document.getElementById('chartRateLabel').textContent = `${c1}/${c2}`;
@@ -479,8 +480,8 @@
                 data: {
                     labels: rates,
                     datasets: [
-                        { label: `组合 1 收益 (${c1})`, data: prof1, borderColor: '#667eea', backgroundColor: 'rgba(102, 126, 234, 0.1)', fill: true, tension: 0.4, yAxisID: 'y' },
-                        { label: `组合 2 收益 (${c2})`, data: prof2, borderColor: '#764ba2', backgroundColor: 'rgba(118, 75, 162, 0.1)', fill: true, tension: 0.4, yAxisID: 'y1' }
+                        { label: `组合${c1}/${c2}`, data: prof1, borderColor: '#667eea', backgroundColor: 'rgba(102, 126, 234, 0.1)', fill: true, tension: 0.4, yAxisID: 'y' },
+                        { label: `组合${c2}/${c1}`, data: prof2, borderColor: '#764ba2', backgroundColor: 'rgba(118, 75, 162, 0.1)', fill: true, tension: 0.4, yAxisID: 'y1' }
                     ]
                 },
                 options: {
