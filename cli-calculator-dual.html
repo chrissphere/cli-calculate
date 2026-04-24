@@ -84,7 +84,7 @@
                             <option value="AUD">AUD 澳元</option>
                             <option value="JPY">JPY 日元</option>
                         </select>
-                        <span style="font-size: 24px;">↔️</span>
+                        <button type="button" onclick="swapCurrencies()" style="padding: 10px 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px;" title="交换货币对"></button>
                         <select id="currency2" onchange="onCurrencyChange()" style="flex: 1;">
                             <option value="CNY">CNY 人民币</option>
                             <option value="USD">USD 美元</option>
@@ -100,7 +100,7 @@
             
             <div class="input-grid" style="margin-bottom: 20px;">
                 <div class="input-group">
-                    <label>📊 即期汇率 (USD/CNY)</label>
+                    <label>📊 即期汇率 <span id="spotRateLabel">(USD/CNY)</span></label>
                     <div style="display: flex; gap: 10px; align-items: center;">
                         <input type="number" id="spotRate" value="7.2500" step="0.0001" min="0" style="flex: 1;">
                         <button type="button" onclick="fetchLiveRateDual()" style="padding: 12px 20px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; white-space: nowrap;">🔄 获取实时汇率</button>
@@ -223,8 +223,17 @@
                 document.getElementById('currency2').value = others[0];
             }
             updateLabels();
+            updateSpotRateLabel();
             // 货币变化后自动获取汇率
             fetchLiveRateDual();
+        }
+
+        function swapCurrencies() {
+            const c1 = document.getElementById('currency1').value;
+            const c2 = document.getElementById('currency2').value;
+            document.getElementById('currency1').value = c2;
+            document.getElementById('currency2').value = c1;
+            onCurrencyChange();
         }
 
         function updateLabels() {
@@ -240,8 +249,22 @@
             document.getElementById('totalCurrency2').textContent = c2;
         }
 
+        function updateSpotRateLabel() {
+            const c1 = document.getElementById('currency1').value;
+            const c2 = document.getElementById('currency2').value;
+            document.getElementById('spotRateLabel').textContent = `(${c1}/${c2})`;
+        }
+
         function setStrike1FromSpot() { document.getElementById('strikeRate1').value = document.getElementById('spotRate').value; }
         function setStrike2FromSpot() { document.getElementById('strikeRate2').value = document.getElementById('spotRate').value; }
+
+        function swapCurrencies() {
+            const c1 = document.getElementById('currency1').value;
+            const c2 = document.getElementById('currency2').value;
+            document.getElementById('currency1').value = c2;
+            document.getElementById('currency2').value = c1;
+            onCurrencyChange();
+        }
 
         function fetchLiveRateDual() {
             const c1 = document.getElementById('currency1').value;
@@ -304,6 +327,7 @@
                 document.getElementById('spotRate').value = rate.toFixed(4);
                 statusEl.textContent = `✅ 已更新 ${c1}/${c2} = ${rate.toFixed(4)}`;
                 statusEl.style.color = '#28a745';
+                updateSpotRateLabel();
                 
                 // 自动同步到行使汇率
                 document.getElementById('strikeRate1').value = rate.toFixed(4);
