@@ -266,7 +266,7 @@
             onCurrencyChange();
         }
 
-        function fetchLiveRateDual() {
+        async function fetchLiveRateDual() {
             const c1 = document.getElementById('currency1').value;
             const c2 = document.getElementById('currency2').value;
             const statusEl = document.getElementById('fetchStatusDual');
@@ -275,53 +275,16 @@
             statusEl.style.color = '#666';
             
             try {
-                // 汇率数据 - 统一使用直接报价格式 (1 外币 = ? 本币)
-                const mockRates = {
-                    'USDCNY': 7.2500,
-                    'CNYUSD': 0.1379,
-                    'USDHKD': 7.8000,
-                    'HKDUSD': 0.1282,
-                    'EURUSD': 1.0850,
-                    'USDEUR': 0.9217,
-                    'GBPUSD': 1.2650,
-                    'USDGBP': 0.7905,
-                    'USDJPY': 149.50,
-                    'JPYUSD': 0.0067,
-                    'AUDUSD': 0.6550,
-                    'USDAUD': 1.5267,
-                    'EURCNY': 7.8650,
-                    'CNYEUR': 0.1271,
-                    'GBPCNY': 9.1700,
-                    'CNYGBP': 0.1090,
-                    'AUDCNY': 4.7500,
-                    'CNYAUD': 0.2105,
-                    'EURGBP': 0.8580,
-                    'GBPEUR': 1.1655,
-                    'EURJPY': 162.20,
-                    'JPYEUR': 0.0062,
-                    'GBPJPY': 188.60,
-                    'JPYGBP': 0.0053,
-                    'AUDCNY': 4.7500,
-                    'AUDJPY': 97.80,
-                    'JPYAUD': 0.0102
-                };
-                
-                const pairKey = `${c1}${c2}`;
-                let rate = mockRates[pairKey];
-                
-                if (!rate) {
-                    // 尝试反向查找
-                    const reverseKey = `${c2}${c1}`;
-                    const reverseRate = mockRates[reverseKey];
-                    if (reverseRate) {
-                        rate = 1 / reverseRate;
-                    }
+                // 使用免费汇率 API (exchangerate-api.com)
+                const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${c1}`);
+                if (!response.ok) {
+                    throw new Error('API 请求失败');
                 }
+                const data = await response.json();
                 
+                const rate = data.rates[c2];
                 if (!rate) {
-                    statusEl.textContent = `⚠️ 暂不支持 ${c1}/${c2}，请手动输入`;
-                    statusEl.style.color = '#f57c00';
-                    return;
+                    throw new Error(`不支持 ${c1}/${c2} 货币对`);
                 }
                 
                 document.getElementById('spotRate').value = rate.toFixed(4);
@@ -338,8 +301,39 @@
                     statusEl.style.color = '#666';
                 }, 3000);
             } catch (error) {
-                statusEl.textContent = `❌ 获取失败：${error.message}`;
-                statusEl.style.color = '#dc3545';
+                // API 失败时使用备用模拟数据
+                const fallbackRates = {
+                    'USDCNY': 7.2500, 'CNYUSD': 0.1379,
+                    'USDHKD': 7.8000, 'HKDUSD': 0.1282,
+                    'EURUSD': 1.0850, 'USDEUR': 0.9217,
+                    'GBPUSD': 1.2650, 'USDGBP': 0.7905,
+                    'USDJPY': 149.50, 'JPYUSD': 0.0067,
+                    'AUDUSD': 0.6550, 'USDAUD': 1.5267,
+                    'EURCNY': 7.8650, 'CNYEUR': 0.1271,
+                    'GBPCNY': 9.1700, 'CNYGBP': 0.1090,
+                    'AUDCNY': 4.7500, 'CNYAUD': 0.2105
+                };
+                
+                const pairKey = `${c1}${c2}`;
+                let rate = fallbackRates[pairKey];
+                
+                if (!rate) {
+                    const reverseKey = `${c2}${c1}`;
+                    const reverseRate = fallbackRates[reverseKey];
+                    if (reverseRate) rate = 1 / reverseRate;
+                }
+                
+                if (rate) {
+                    document.getElementById('spotRate').value = rate.toFixed(4);
+                    statusEl.textContent = `⚠️ 使用备用汇率 ${c1}/${c2} = ${rate.toFixed(4)}`;
+                    statusEl.style.color = '#f57c00';
+                    updateSpotRateLabel();
+                    document.getElementById('strikeRate1').value = rate.toFixed(4);
+                    document.getElementById('strikeRate2').value = rate.toFixed(4);
+                } else {
+                    statusEl.textContent = `❌ 暂不支持 ${c1}/${c2}，请手动输入`;
+                    statusEl.style.color = '#dc3545';
+                }
             }
         }
 
