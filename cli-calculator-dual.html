@@ -201,6 +201,9 @@
             
             <div class="card">
                 <div class="card-title">📈 汇率 - 收益对照表（组合 1 & 组合 2）</div>
+                <div class="info-tip" style="margin-bottom: 15px;">
+                    💡 由于 rate2 = 1/rate1（严格倒数），两个组合的触发条件互斥：rate1 上涨时组合 1 可能触发，但 rate2 下跌使组合 2 不触发；反之亦然
+                </div>
                 <div style="overflow-x: auto;">
                     <table id="comparisonTableDual">
                         <thead>
@@ -351,9 +354,6 @@
             const tbody = document.getElementById('comparisonBodyDual');
             tbody.innerHTML = '';
             
-            // 以打和价为中心，范围取两个打和价的较大者
-            const range1 = be1 * 0.10;
-            const range2 = invSpot * 0.10;
             const minSpot = spot * 0.90;
             const maxSpot = spot * 1.10;
             const step = (maxSpot - minSpot) / 10;
@@ -361,31 +361,35 @@
             const regularRate = 0.025;
             
             for (let i = 0; i <= 10; i++) {
-                const rate1 = minSpot + step * i;
-                const rate2 = invSpot * (rate1 / spot); // 保持比例关系
+                const rate1 = minSpot + step * i; // USD/CNY
+                const rate2 = 1 / rate1; // CNY/USD = 1/(USD/CNY)，严格倒数关系
                 const changePercent = ((rate1 - spot) / spot) * 100;
                 
-                // 组合 1：结构 B，rate1 ≤ strike1 → 拿存款货币
+                // 组合 1：结构 B，rate1 (USD/CNY) ≤ strike1 → 拿存款货币 (USD)
+                // 触发 (=被换汇)：rate1 > strike1
                 const triggered1 = rate1 > strike1;
                 let final1, converted1;
                 if (triggered1) {
-                    final1 = p1 * strike1; // 被换汇，拿到挂钩货币（按行使汇率换）
-                    converted1 = final1 / rate1; // 折算回存款货币
+                    // 被换汇：本金按 strike1 换成 CNY，再按市场汇率 rate1 折回 USD
+                    final1 = p1 * strike1; // 拿到 CNY
+                    converted1 = final1 / rate1; // 折回 USD
                 } else {
-                    final1 = p1 + p1 * r1 * (days / 365);
+                    final1 = p1 + p1 * r1 * (days / 365); // 拿回 USD + 利息
                     converted1 = final1;
                 }
                 const reg1 = p1 + p1 * regularRate * (days / 365);
                 const pl1 = converted1 - reg1;
                 
-                // 组合 2：结构 B，rate2 ≤ strike2 → 拿存款货币
+                // 组合 2：结构 B，rate2 (CNY/USD) ≤ strike2 → 拿存款货币 (CNY)
+                // 触发 (=被换汇)：rate2 > strike2
+                // 关键：rate2 = 1/rate1，所以当 rate1 上涨时 rate2 下跌，触发条件互斥
                 const triggered2 = rate2 > strike2;
                 let final2, converted2;
                 if (triggered2) {
-                    final2 = p2 * strike2;
-                    converted2 = final2 / rate2;
+                    final2 = p2 * strike2; // 拿到 USD
+                    converted2 = final2 / rate2; // 折回 CNY
                 } else {
-                    final2 = p2 + p2 * r2 * (days / 365);
+                    final2 = p2 + p2 * r2 * (days / 365); // 拿回 CNY + 利息
                     converted2 = final2;
                 }
                 const reg2 = p2 + p2 * regularRate * (days / 365);
@@ -415,27 +419,27 @@
             const profits2 = [];
             
             for (let i = -0.10; i <= 0.10; i += 0.01) {
-                const rate1 = spot * (1 + i);
-                const rate2 = invSpot * (1 + i);
+                const rate1 = spot * (1 + i); // USD/CNY
+                const rate2 = 1 / rate1; // CNY/USD = 严格倒数
                 
-                // 组合 1
+                // 组合 1：结构 B，rate1 ≤ strike1 → 拿 USD + 利息
                 const int1 = p1 * r1 * (days / 365);
                 let final1;
                 if (rate1 <= strike1) {
-                    final1 = p1 + int1;
+                    final1 = p1 + int1; // 未触发，拿回 USD
                 } else {
-                    final1 = p1 * strike1 / rate1;
+                    final1 = p1 * strike1 / rate1; // 触发，被换成 CNY 再折回 USD
                 }
                 rates.push(rate1.toFixed(4));
                 profits1.push(final1 - p1);
                 
-                // 组合 2
+                // 组合 2：结构 B，rate2 ≤ strike2 → 拿 CNY + 利息
                 const int2 = p2 * r2 * (days / 365);
                 let final2;
                 if (rate2 <= strike2) {
-                    final2 = p2 + int2;
+                    final2 = p2 + int2; // 未触发，拿回 CNY
                 } else {
-                    final2 = p2 * strike2 / rate2;
+                    final2 = p2 * strike2 / rate2; // 触发，被换成 USD 再折回 CNY
                 }
                 profits2.push(final2 - p2);
             }
