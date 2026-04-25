@@ -806,21 +806,45 @@
                 </tr>`;
             }
             
+            // 收集所有行（包括打和价行），然后排序
+            const allRows = [];
+            
             for (let i = 0; i <= 10; i++) {
                 const rate = minRate + step * i;
                 const changePct = ((rate - spot) / spot) * 100;
                 
-                // 检查是否需要在此行前插入打和价行
-                const nextRate = (i < 10) ? minRate + step * (i + 1) : rate + 1;
+                // 添加普通行
+                allRows.push({ rate, type: 'normal', html: null, changePct });
+                
+                // 如果打和价等于当前汇率（或非常接近），添加打和价行
                 if (i < 10) {
-                    if (be1 >= rate && be1 < nextRate) {
-                        tbody.insertAdjacentHTML('beforeend', createBreakEvenRow(be1, '🎯 组合 1 打和价', '#fff3cd'));
+                    const nextRate = minRate + step * (i + 1);
+                    if (be1 > rate && be1 < nextRate) {
+                        allRows.push({ rate: be1, type: 'be1', html: null, changePct: ((be1 - spot) / spot) * 100 });
                     }
-                    if (be2 >= rate && be2 < nextRate) {
-                        tbody.insertAdjacentHTML('beforeend', createBreakEvenRow(be2, '🎯 组合 2 打和价', '#fff3cd'));
+                    if (be2 > rate && be2 < nextRate) {
+                        allRows.push({ rate: be2, type: 'be2', html: null, changePct: ((be2 - spot) / spot) * 100 });
                     }
                 }
+            }
+            
+            // 按汇率排序
+            allRows.sort((a, b) => a.rate - b.rate);
+            
+            // 生成 HTML
+            for (const row of allRows) {
+                const rate = row.rate;
+                const changePct = row.changePct;
                 
+                if (row.type === 'be1') {
+                    tbody.insertAdjacentHTML('beforeend', createBreakEvenRow(rate, '🎯 组合 1 打和价', '#fff3cd'));
+                    continue;
+                }
+                if (row.type === 'be2') {
+                    tbody.insertAdjacentHTML('beforeend', createBreakEvenRow(rate, '🎯 组合 2 打和价', '#fff3cd'));
+                    continue;
+                }
+
                 // 组合 1：结构 B，rate ≤ strike1 → 不触发
                 const trig1 = rate > strike1;
                 let final1, conv1;
