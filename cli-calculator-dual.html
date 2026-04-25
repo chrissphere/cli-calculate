@@ -630,16 +630,6 @@
             const c1 = document.getElementById('currency1').value;
             const c2 = document.getElementById('currency2').value;
             
-            // 更新表格中的汇率标签
-            document.getElementById('tableRateLabel').textContent = `${c1}/${c2}`;
-            document.getElementById('tableRateHeader').textContent = `${c1}/${c2}`;
-            // 更新汇总损益列的币种标签
-            document.getElementById('totalPLCurrency1').textContent = c1;
-            document.getElementById('totalPLCurrency2').textContent = c2;
-            // 更新表格中的定期存款利率显示
-            document.getElementById('tableDepositRate1').textContent = (depositRate1 * 100).toFixed(1);
-            document.getElementById('tableDepositRate2').textContent = (depositRate2 * 100).toFixed(1);
-            
             const p1 = parseFloat(document.getElementById('principal1').value);
             const strike1 = parseFloat(document.getElementById('strikeRate1').value);
             const r1 = parseFloat(document.getElementById('annualRate1').value) / 100;
@@ -649,6 +639,16 @@
             const strike2 = parseFloat(document.getElementById('strikeRate2').value);
             const r2 = parseFloat(document.getElementById('annualRate2').value) / 100;
             const depositRate2 = parseFloat(document.getElementById('depositRate2').value) / 100 || 0;
+            
+            // 更新表格中的汇率标签
+            document.getElementById('tableRateLabel').textContent = `${c1}/${c2}`;
+            document.getElementById('tableRateHeader').textContent = `${c1}/${c2}`;
+            // 更新汇总损益列的币种标签
+            document.getElementById('totalPLCurrency1').textContent = c1;
+            document.getElementById('totalPLCurrency2').textContent = c2;
+            // 更新表格中的定期存款利率显示
+            document.getElementById('tableDepositRate1').textContent = (depositRate1 * 100).toFixed(1);
+            document.getElementById('tableDepositRate2').textContent = (depositRate2 * 100).toFixed(1);
             
             // 计算定期存款利息对比
             const depositInt1 = p1 * depositRate1 * (days / 365);
