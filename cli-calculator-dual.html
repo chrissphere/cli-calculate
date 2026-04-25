@@ -310,6 +310,7 @@
             <div class="card">
                 <div class="card-title">📌 组合 1 详细结果</div>
                 <div class="result-grid">
+                    <div class="result-item"><div class="result-label">固定年收益率</div><div class="result-value" id="fixedYield1">0</div><div class="result-unit">%</div></div>
                     <div class="result-item highlight"><div class="result-label">CLI 利息</div><div class="result-value" id="cliInterest1">0</div><div class="result-unit" id="currency1Label">USD</div></div>
                     <div class="result-item"><div class="result-label">本金 + 利息</div><div class="result-value" id="totalAmount1">0</div><div class="result-unit" id="totalCurrency1">USD</div></div>
                     <div class="result-item"><div class="result-label">打和价</div><div class="result-value" id="breakEven1">0</div><div class="result-unit"></div></div>
@@ -320,6 +321,7 @@
             <div class="card">
                 <div class="card-title">📌 组合 2 详细结果</div>
                 <div class="result-grid">
+                    <div class="result-item"><div class="result-label">固定年收益率</div><div class="result-value" id="fixedYield2">0</div><div class="result-unit">%</div></div>
                     <div class="result-item highlight"><div class="result-label">CLI 利息</div><div class="result-value" id="cliInterest2">0</div><div class="result-unit" id="currency2Label">CNY</div></div>
                     <div class="result-item"><div class="result-label">本金 + 利息</div><div class="result-value" id="totalAmount2">0</div><div class="result-unit" id="totalCurrency2">CNY</div></div>
                     <div class="result-item"><div class="result-label">打和价</div><div class="result-value" id="breakEven2">0</div><div class="result-unit"></div></div>
@@ -654,6 +656,10 @@
             
             document.getElementById('interest1').textContent = formatNumber(int1);
             document.getElementById('interest2').textContent = formatNumber(int2);
+            
+            // 显示固定年收益率
+            document.getElementById('fixedYield1').textContent = (r1 * 100).toFixed(2);
+            document.getElementById('fixedYield2').textContent = (r2 * 100).toFixed(2);
             
             document.getElementById('cliInterest1').textContent = formatNumber(int1);
             document.getElementById('totalAmount1').textContent = formatNumber(total1);
