@@ -296,6 +296,7 @@
                     <div class="input-grid">
                         <div class="input-group" style="grid-column: span 2;"><label>💵 本金</label><input type="number" id="principal1" value="50000" step="1000"></div>
                         <div class="input-group" style="grid-column: span 2;"><label>📈 CLI 年化利率 (%)</label><input type="number" id="annualRate1" value="6.5" step="0.1"></div>
+                        <div class="input-group" style="grid-column: span 2;"><label>🏦 定期存款年利率 (%)</label><input type="number" id="depositRate1" value="2.0" step="0.1" min="0"></div>
                         <div class="input-group" style="grid-column: span 2;"><label>🎯 行使汇率 <span id="strikeDiff1" style="font-weight: 500; font-size: 13px; margin-left: 6px;"></span></label><div style="display: grid; grid-template-columns: 1fr 50px 50px; gap: 8px; align-items: center;"><input type="number" id="strikeRate1" value="7.2500" step="0.0001" style="width: 100%; height: 48px;" oninput="updateStrikeDiff1()"><button type="button" onclick="adjustStrike1(-0.001)" style="height: 48px; background: #f0f0f0; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; font-size: 22px; font-weight: 700; color: #333;">−</button><button type="button" onclick="adjustStrike1(0.001)" style="height: 48px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 22px; font-weight: 700;">+</button></div></div>
                         <div class="input-group" style="grid-column: span 2;"><button type="button" onclick="setStrike1FromSpot()" style="padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%;">= 即期汇率</button></div>
                     </div>
@@ -306,6 +307,7 @@
                     <div class="input-grid">
                         <div class="input-group" style="grid-column: span 2;"><label>💵 本金</label><input type="number" id="principal2" value="50000" step="1000"></div>
                         <div class="input-group" style="grid-column: span 2;"><label>📈 CLI 年化利率 (%)</label><input type="number" id="annualRate2" value="6.5" step="0.1"></div>
+                        <div class="input-group" style="grid-column: span 2;"><label>🏦 定期存款年利率 (%)</label><input type="number" id="depositRate2" value="2.0" step="0.1" min="0"></div>
                         <div class="input-group" style="grid-column: span 2;"><label>🎯 行使汇率 <span id="strikeDiff2" style="font-weight: 500; font-size: 13px; margin-left: 6px;"></span></label><div style="display: grid; grid-template-columns: 1fr 50px 50px; gap: 8px; align-items: center;"><input type="number" id="strikeRate2" value="7.2500" step="0.0001" style="width: 100%; height: 48px;" oninput="updateStrikeDiff2()"><button type="button" onclick="adjustStrike2(-0.001)" style="height: 48px; background: #f0f0f0; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; font-size: 22px; font-weight: 700; color: #333;">−</button><button type="button" onclick="adjustStrike2(0.001)" style="height: 48px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 22px; font-weight: 700;">+</button></div></div>
                         <div class="input-group" style="grid-column: span 2;"><button type="button" onclick="setStrike2FromSpot()" style="padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%;">= 即期汇率</button></div>
                     </div>
@@ -316,15 +318,11 @@
         </div>
         
         <div id="resultSection" class="result-section">
-            <div class="summary-grid">
-                <div class="summary-card"><div class="summary-label">组合 1 利息收益</div><div class="summary-value" id="interest1">0</div><div class="summary-unit" id="interestCurrency1">USD</div></div>
-                <div class="summary-card"><div class="summary-label">组合 2 利息收益</div><div class="summary-value" id="interest2">0</div><div class="summary-unit" id="interestCurrency2">CNY</div></div>
-            </div>
-            
             <div class="card">
                 <div class="card-title">📌 组合 1 详细结果</div>
                 <div class="result-grid">
                     <div class="result-item"><div class="result-label">CLI 年化利率</div><div class="result-value" id="cliYield1">0</div><div class="result-unit">%</div></div>
+                    <div class="result-item"><div class="result-label">定期存款利息</div><div class="result-value" id="depositInterest1">0</div><div class="result-unit" id="depositCurrency1">USD</div></div>
                     <div class="result-item highlight"><div class="result-label">CLI 利息</div><div class="result-value" id="cliInterest1">0</div><div class="result-unit" id="currency1Label">USD</div></div>
                     <div class="result-item"><div class="result-label">本金 + 利息</div><div class="result-value" id="totalAmount1">0</div><div class="result-unit" id="totalCurrency1">USD</div></div>
                     <div class="result-item"><div class="result-label">打和价</div><div class="result-value" id="breakEven1">0</div><div class="result-unit"></div></div>
@@ -336,6 +334,7 @@
                 <div class="card-title">📌 组合 2 详细结果</div>
                 <div class="result-grid">
                     <div class="result-item"><div class="result-label">CLI 年化利率</div><div class="result-value" id="cliYield2">0</div><div class="result-unit">%</div></div>
+                    <div class="result-item"><div class="result-label">定期存款利息</div><div class="result-value" id="depositInterest2">0</div><div class="result-unit" id="depositCurrency2">CNY</div></div>
                     <div class="result-item highlight"><div class="result-label">CLI 利息</div><div class="result-value" id="cliInterest2">0</div><div class="result-unit" id="currency2Label">CNY</div></div>
                     <div class="result-item"><div class="result-label">本金 + 利息</div><div class="result-value" id="totalAmount2">0</div><div class="result-unit" id="totalCurrency2">CNY</div></div>
                     <div class="result-item"><div class="result-label">打和价</div><div class="result-value" id="breakEven2">0</div><div class="result-unit"></div></div>
@@ -345,7 +344,7 @@
             
             <div class="card">
                 <div class="card-title">📈 汇率 - 收益对照表（组合 1 & 组合 2）</div>
-                <div class="info-tip" style="margin-bottom: 15px;">💡 两个组合使用同一个 <span id="tableRateLabel">USD/CNY</span> 汇率，但行使汇率独立设置 | 损益显示相对于基准收益（2.5% 年化）的超额收益 | 🎯 黄色行=组合 1 打和价 | 🎯 蓝色行=组合 2 打和价</div>
+                <div class="info-tip" style="margin-bottom: 15px;">💡 两个组合使用同一个 <span id="tableRateLabel">USD/CNY</span> 汇率，但行使汇率独立设置 | 损益显示相对于各自定期存款的超额收益（组合 1 定期利率 <span id="tableDepositRate1">2.0</span>% | 组合 2 定期利率 <span id="tableDepositRate2">2.0</span>%）</div>
                 
                 <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
                     <label style="font-weight: 600; font-size: 13px;">📊 汇率变动幅度：</label>
@@ -643,10 +642,12 @@
             const p1 = parseFloat(document.getElementById('principal1').value);
             const strike1 = parseFloat(document.getElementById('strikeRate1').value);
             const r1 = parseFloat(document.getElementById('annualRate1').value) / 100;
+            const depositRate1 = parseFloat(document.getElementById('depositRate1').value) / 100 || 0;
             
             const p2 = parseFloat(document.getElementById('principal2').value);
             const strike2 = parseFloat(document.getElementById('strikeRate2').value);
             const r2 = parseFloat(document.getElementById('annualRate2').value) / 100;
+            const depositRate2 = parseFloat(document.getElementById('depositRate2').value) / 100 || 0;
             
             // 更新表格中的汇率标签
             document.getElementById('tableRateLabel').textContent = `${c1}/${c2}`;
@@ -654,9 +655,13 @@
             // 更新汇总损益列的币种标签
             document.getElementById('totalPLCurrency1').textContent = c1;
             document.getElementById('totalPLCurrency2').textContent = c2;
+            // 更新表格中的定期存款利率显示
+            document.getElementById('tableDepositRate1').textContent = (depositRate1 * 100).toFixed(1);
+            document.getElementById('tableDepositRate2').textContent = (depositRate2 * 100).toFixed(1);
             
-            // 固定基准收益率用于对比（2.5%）
-            const benchmarkRate = 0.025;
+            // 计算定期存款利息对比
+            const depositInt1 = p1 * depositRate1 * (days / 365);
+            const depositInt2 = p2 * depositRate2 * (days / 365);
             
             // 组合 1：结构 B（看涨 c2），rate ≤ strike1 → 拿 c1 + 利息
             const int1 = p1 * r1 * (days / 365);
@@ -670,9 +675,6 @@
             const total2 = p2 + int2;
             // 打和价：c1/c2 汇率下，c2 存款的打和价 = strike2 / (1+利息比)
             const be2 = strike2 / (1 + r2 * (days / 365));
-            
-            document.getElementById('interest1').textContent = formatNumber(int1);
-            document.getElementById('interest2').textContent = formatNumber(int2);
             
             // 显示 CLI 年化利率
             document.getElementById('cliYield1').textContent = (r1 * 100).toFixed(2);
@@ -697,8 +699,8 @@
             // 更新图表标签
             document.getElementById('chartRateLabel').textContent = `${c1}/${c2}`;
             
-            generateDualComparisonTable(p1, p2, days, r1, r2, spotRate, strike1, strike2, c1, c2);
-            drawDualRateProfitChart(p1, p2, days, r1, r2, spotRate, strike1, strike2, c1, c2);
+            generateDualComparisonTable(p1, p2, days, r1, r2, depositRate1, depositRate2, spotRate, strike1, strike2, c1, c2);
+            drawDualRateProfitChart(p1, p2, days, r1, r2, depositRate1, depositRate2, spotRate, strike1, strike2, c1, c2);
             
             document.getElementById('resultSection').style.display = 'block';
             document.getElementById('resultSection').classList.add('show');
@@ -745,7 +747,7 @@
             }
         }
 
-        function generateDualComparisonTable(p1, p2, days, r1, r2, spot, strike1, strike2, c1, c2) {
+        function generateDualComparisonTable(p1, p2, days, r1, r2, depR1, depR2, spot, strike1, strike2, c1, c2) {
             const tbody = document.getElementById('comparisonBodyDual');
             tbody.innerHTML = '';
             
@@ -770,9 +772,9 @@
                     final1 = p1 + p1 * r1 * (days / 365);
                     conv1 = final1;
                 }
-                // 基准收益对比（2.5%）
-                const benchmarkFinal1 = p1 + p1 * benchmarkRate * (days / 365);
-                const pl1 = conv1 - benchmarkFinal1;
+                // 定期存款对比（组合 1）
+                const depFinal1 = p1 + p1 * depR1 * (days / 365);
+                const pl1 = conv1 - depFinal1;
                 
                 // 组合 2：结构 B，rate ≥ strike2 → 不触发（看涨 c1）
                 const trig2 = rate < strike2;
@@ -787,9 +789,9 @@
                     final2 = p2 + p2 * r2 * (days / 365);
                     conv2 = final2;
                 }
-                // 基准收益对比（组合 2）
-                const benchmarkFinal2 = p2 + p2 * benchmarkRate * (days / 365);
-                const pl2 = conv2 - benchmarkFinal2;
+                // 定期存款对比（组合 2）
+                const depFinal2 = p2 + p2 * depR2 * (days / 365);
+                const pl2 = conv2 - depFinal2;
                 
                 // 汇总损益 1：以组合 1 存款币种（c1）计算
                 let pl2InC1;
@@ -835,95 +837,9 @@
                 </tr>`;
                 tbody.insertAdjacentHTML('beforeend', row);
             }
-            
-            // 添加组合 1 打和价行
-            const be1 = strike1 * (1 + r1 * (days / 365));
-            const be1ChangePct = ((be1 - spot) / spot) * 100;
-            const be1Trig1 = be1 > strike1; // 组合 1 在打和价时触发（被换汇）
-            const be1Final1 = p1 * strike1; // 触发后拿到 c2
-            const be1Conv1 = be1Final1 / be1; // 折回 c1
-            const be1Benchmark = p1 + p1 * benchmarkRate * (days / 365);
-            const be1Pl1 = be1Conv1 - be1Benchmark;
-            
-            // 组合 2 在 be1 汇率下的情况
-            const be1Trig2 = be1 < strike2;
-            let be1Final2, be1Conv2;
-            if (be1Trig2) {
-                be1Final2 = p2 / strike2;
-                be1Conv2 = be1Final2 * be1;
-            } else {
-                be1Final2 = p2 + p2 * r2 * (days / 365);
-                be1Conv2 = be1Final2;
-            }
-            const be1Benchmark2 = p2 + p2 * benchmarkRate * (days / 365);
-            const be1Pl2 = be1Conv2 - be1Benchmark2;
-            
-            // 汇总损益
-            let be1Pl2InC1 = be1Trig2 ? be1Pl2 : be1Pl2 / be1;
-            const be1PlTotalC1 = be1Pl1 + be1Pl2InC1;
-            let be1Pl1InC2 = be1Trig1 ? be1Pl1 : be1Pl1 * be1;
-            let be1Pl2InC2 = be1Trig2 ? be1Pl2 * be1 : be1Pl2;
-            const be1PlTotalC2 = be1Pl1InC2 + be1Pl2InC2;
-            
-            const be1Row = `<tr style="background: #fff3cd; font-weight: 600;">
-                <td>🎯 组合 1 打和价</td>
-                <td>${be1.toFixed(4)}</td>
-                <td class="${be1Trig1 ? 'loss' : 'profit'}">${be1Trig1 ? '❌' : '✅'}</td>
-                <td>${formatNumber(be1Final1)}<br><small>${be1Trig1 ? c2 : c1}</small></td>
-                <td class="${be1Pl1 >= 0 ? 'profit' : 'loss'}" style="font-size:11px">${be1Pl1 >= 0 ? '+' : ''}${formatNumber(be1Pl1)}</td>
-                <td class="${be1Trig2 ? 'loss' : 'profit'}">${be1Trig2 ? '❌' : '✅'}</td>
-                <td>${formatNumber(be1Final2)}<br><small>${be1Trig2 ? c1 : c2}</small></td>
-                <td class="${be1Pl2 >= 0 ? 'profit' : 'loss'}" style="font-size:11px">${be1Pl2 >= 0 ? '+' : ''}${formatNumber(be1Pl2)}</td>
-                <td class="${be1PlTotalC1 >= 0 ? 'profit' : 'loss'}" style="font-size:11px;font-weight:600">${be1PlTotalC1 >= 0 ? '+' : ''}${formatNumber(be1PlTotalC1)}</td>
-                <td class="${be1PlTotalC2 >= 0 ? 'profit' : 'loss'}" style="font-size:11px;font-weight:600">${be1PlTotalC2 >= 0 ? '+' : ''}${formatNumber(be1PlTotalC2)}</td>
-            </tr>`;
-            tbody.insertAdjacentHTML('beforeend', be1Row);
-            
-            // 添加组合 2 打和价行
-            const be2 = strike2 / (1 + r2 * (days / 365));
-            const be2ChangePct = ((be2 - spot) / spot) * 100;
-            const be2Trig1 = be2 > strike1;
-            let be2Final1, be2Conv1;
-            if (be2Trig1) {
-                be2Final1 = p1 * strike1;
-                be2Conv1 = be2Final1 / be2;
-            } else {
-                be2Final1 = p1 + p1 * r1 * (days / 365);
-                be2Conv1 = be2Final1;
-            }
-            const be2Benchmark1 = p1 + p1 * benchmarkRate * (days / 365);
-            const be2Pl1 = be2Conv1 - be2Benchmark1;
-            
-            // 组合 2 在 be2 汇率下的情况（不触发，刚好打和）
-            const be2Trig2 = be2 < strike2;
-            const be2Final2 = p2 + p2 * r2 * (days / 365);
-            const be2Conv2 = be2Final2;
-            const be2Benchmark2 = p2 + p2 * benchmarkRate * (days / 365);
-            const be2Pl2 = be2Conv2 - be2Benchmark2;
-            
-            // 汇总损益
-            let be2Pl2InC1 = be2Trig2 ? be2Pl2 : be2Pl2 / be2;
-            const be2PlTotalC1 = be2Pl1 + be2Pl2InC1;
-            let be2Pl1InC2 = be2Trig1 ? be2Pl1 : be2Pl1 * be2;
-            let be2Pl2InC2 = be2Trig2 ? be2Pl2 * be2 : be2Pl2;
-            const be2PlTotalC2 = be2Pl1InC2 + be2Pl2InC2;
-            
-            const be2Row = `<tr style="background: #d1ecf1; font-weight: 600;">
-                <td>🎯 组合 2 打和价</td>
-                <td>${be2.toFixed(4)}</td>
-                <td class="${be2Trig1 ? 'loss' : 'profit'}">${be2Trig1 ? '❌' : '✅'}</td>
-                <td>${formatNumber(be2Final1)}<br><small>${be2Trig1 ? c2 : c1}</small></td>
-                <td class="${be2Pl1 >= 0 ? 'profit' : 'loss'}" style="font-size:11px">${be2Pl1 >= 0 ? '+' : ''}${formatNumber(be2Pl1)}</td>
-                <td class="${be2Trig2 ? 'loss' : 'profit'}">${be2Trig2 ? '❌' : '✅'}</td>
-                <td>${formatNumber(be2Final2)}<br><small>${be2Trig2 ? c1 : c2}</small></td>
-                <td class="${be2Pl2 >= 0 ? 'profit' : 'loss'}" style="font-size:11px">${be2Pl2 >= 0 ? '+' : ''}${formatNumber(be2Pl2)}</td>
-                <td class="${be2PlTotalC1 >= 0 ? 'profit' : 'loss'}" style="font-size:11px;font-weight:600">${be2PlTotalC1 >= 0 ? '+' : ''}${formatNumber(be2PlTotalC1)}</td>
-                <td class="${be2PlTotalC2 >= 0 ? 'profit' : 'loss'}" style="font-size:11px;font-weight:600">${be2PlTotalC2 >= 0 ? '+' : ''}${formatNumber(be2PlTotalC2)}</td>
-            </tr>`;
-            tbody.insertAdjacentHTML('beforeend', be2Row);
         }
 
-        function drawDualRateProfitChart(p1, p2, days, r1, r2, spot, strike1, strike2, c1, c2) {
+        function drawDualRateProfitChart(p1, p2, days, r1, r2, depR1, depR2, spot, strike1, strike2, c1, c2) {
             const ctx = document.getElementById('rateProfitChartDual').getContext('2d');
             if (rateProfitChartDual) rateProfitChartDual.destroy();
             
@@ -941,9 +857,9 @@
                 // 组合 1
                 const int1 = p1 * r1 * (days / 365);
                 let f1 = rate <= strike1 ? p1 + int1 : p1 * strike1 / rate;
-                // 基准收益对比（2.5%）
-                const benchmarkF1 = p1 + p1 * benchmarkRate * (days / 365);
-                let profit1 = f1 - benchmarkF1;
+                // 定期存款对比（组合 1）
+                const depF1 = p1 + p1 * depR1 * (days / 365);
+                let profit1 = f1 - depF1;
                 
                 // 组合 2：c2 存款，触发时 c2 被换成 c1
                 const int2 = p2 * r2 * (days / 365);
@@ -955,9 +871,9 @@
                     const c1Amount = p2 / strike2; // c2 ÷ strike = c1
                     f2 = c1Amount * rate; // c1 × rate = c2（用到期汇率）
                 }
-                // 基准收益对比（组合 2）
-                const benchmarkF2 = p2 + p2 * benchmarkRate * (days / 365);
-                let profit2 = f2 - benchmarkF2;
+                // 定期存款对比（组合 2）
+                const depF2 = p2 + p2 * depR2 * (days / 365);
+                let profit2 = f2 - depF2;
                 
                 // 根据显示币种转换收益
                 if (chartDisplayCurrency === 'c1') {
@@ -1043,9 +959,11 @@
                 principal1: document.getElementById('principal1').value,
                 strikeRate1: document.getElementById('strikeRate1').value,
                 annualRate1: document.getElementById('annualRate1').value,
+                depositRate1: document.getElementById('depositRate1').value,
                 principal2: document.getElementById('principal2').value,
                 strikeRate2: document.getElementById('strikeRate2').value,
                 annualRate2: document.getElementById('annualRate2').value,
+                depositRate2: document.getElementById('depositRate2').value,
                 rateRange: currentRateRange
             };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(params));
@@ -1064,9 +982,11 @@
                 if (params.principal1) document.getElementById('principal1').value = params.principal1;
                 if (params.strikeRate1) document.getElementById('strikeRate1').value = parseFloat(params.strikeRate1).toFixed(4);
                 if (params.annualRate1) document.getElementById('annualRate1').value = params.annualRate1;
+                if (params.depositRate1) document.getElementById('depositRate1').value = params.depositRate1;
                 if (params.principal2) document.getElementById('principal2').value = params.principal2;
                 if (params.strikeRate2) document.getElementById('strikeRate2').value = parseFloat(params.strikeRate2).toFixed(4);
                 if (params.annualRate2) document.getElementById('annualRate2').value = params.annualRate2;
+                if (params.depositRate2) document.getElementById('depositRate2').value = params.depositRate2;
                 if (params.rateRange) {
                     currentRateRange = params.rateRange;
                     // 更新按钮状态
