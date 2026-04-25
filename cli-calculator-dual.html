@@ -274,10 +274,6 @@
                     <label>📅 投资期限 (天)</label>
                     <input type="number" id="days" value="14" step="1" min="1" max="180">
                 </div>
-                <div class="input-group">
-                    <label>🏦 定期存款年利率 (%)</label>
-                    <input type="number" id="depositRate" value="2.0" step="0.1" min="0" placeholder="对比基准">
-                </div>
             </div>
             
             <div class="dual-portfolio">
@@ -286,6 +282,7 @@
                     <div class="input-grid">
                         <div class="input-group"><label>💵 本金</label><input type="number" id="principal1" value="50000" step="1000"></div>
                         <div class="input-group"><label>📈 CLI 年化利率 (%)</label><input type="number" id="annualRate1" value="6.5" step="0.1"></div>
+                        <div class="input-group"><label>🏦 定期存款年利率 (%)</label><input type="number" id="depositRate1" value="2.0" step="0.1" min="0"></div>
                         <div class="input-group" style="grid-column: span 2;"><label>🎯 行使汇率 <span id="strikeDiff1" style="font-weight: 500; font-size: 13px; margin-left: 6px;"></span></label><div style="display: grid; grid-template-columns: 1fr auto auto; gap: 6px; align-items: end;"><input type="number" id="strikeRate1" value="7.2500" step="0.0001" style="width: 100%;" oninput="updateStrikeDiff1()"><button type="button" onclick="adjustStrike1(-0.001)" style="padding: 12px 16px; background: #f0f0f0; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: 600; white-space: nowrap;">−</button><button type="button" onclick="adjustStrike1(0.001)" style="padding: 12px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: 600; white-space: nowrap;">+</button></div></div>
                         <div class="input-group" style="grid-column: span 2;"><button type="button" onclick="setStrike1FromSpot()" style="padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%;">= 即期汇率</button></div>
                     </div>
@@ -296,6 +293,7 @@
                     <div class="input-grid">
                         <div class="input-group"><label>💵 本金</label><input type="number" id="principal2" value="50000" step="1000"></div>
                         <div class="input-group"><label>📈 CLI 年化利率 (%)</label><input type="number" id="annualRate2" value="6.5" step="0.1"></div>
+                        <div class="input-group"><label>🏦 定期存款年利率 (%)</label><input type="number" id="depositRate2" value="2.0" step="0.1" min="0"></div>
                         <div class="input-group" style="grid-column: span 2;"><label>🎯 行使汇率 <span id="strikeDiff2" style="font-weight: 500; font-size: 13px; margin-left: 6px;"></span></label><div style="display: grid; grid-template-columns: 1fr auto auto; gap: 6px; align-items: end;"><input type="number" id="strikeRate2" value="7.2500" step="0.0001" style="width: 100%;" oninput="updateStrikeDiff2()"><button type="button" onclick="adjustStrike2(-0.001)" style="padding: 12px 16px; background: #f0f0f0; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: 600; white-space: nowrap;">−</button><button type="button" onclick="adjustStrike2(0.001)" style="padding: 12px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: 600; white-space: nowrap;">+</button></div></div>
                         <div class="input-group" style="grid-column: span 2;"><button type="button" onclick="setStrike2FromSpot()" style="padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%;">= 即期汇率</button></div>
                     </div>
@@ -314,7 +312,7 @@
             <div class="card">
                 <div class="card-title">📌 组合 1 详细结果</div>
                 <div class="result-grid">
-                    <div class="result-item"><div class="result-label">固定年收益率</div><div class="result-value" id="fixedYield1">0</div><div class="result-unit">%</div></div>
+                    <div class="result-item"><div class="result-label">CLI 年化利率</div><div class="result-value" id="cliYield1">0</div><div class="result-unit">%</div></div>
                     <div class="result-item"><div class="result-label">定期存款利息</div><div class="result-value" id="depositInterest1">0</div><div class="result-unit" id="depositCurrency1">USD</div></div>
                     <div class="result-item highlight"><div class="result-label">CLI 利息</div><div class="result-value" id="cliInterest1">0</div><div class="result-unit" id="currency1Label">USD</div></div>
                     <div class="result-item"><div class="result-label">本金 + 利息</div><div class="result-value" id="totalAmount1">0</div><div class="result-unit" id="totalCurrency1">USD</div></div>
@@ -326,7 +324,7 @@
             <div class="card">
                 <div class="card-title">📌 组合 2 详细结果</div>
                 <div class="result-grid">
-                    <div class="result-item"><div class="result-label">固定年收益率</div><div class="result-value" id="fixedYield2">0</div><div class="result-unit">%</div></div>
+                    <div class="result-item"><div class="result-label">CLI 年化利率</div><div class="result-value" id="cliYield2">0</div><div class="result-unit">%</div></div>
                     <div class="result-item"><div class="result-label">定期存款利息</div><div class="result-value" id="depositInterest2">0</div><div class="result-unit" id="depositCurrency2">CNY</div></div>
                     <div class="result-item highlight"><div class="result-label">CLI 利息</div><div class="result-value" id="cliInterest2">0</div><div class="result-unit" id="currency2Label">CNY</div></div>
                     <div class="result-item"><div class="result-label">本金 + 利息</div><div class="result-value" id="totalAmount2">0</div><div class="result-unit" id="totalCurrency2">CNY</div></div>
@@ -629,7 +627,6 @@
         function calculateDual() {
             const days = parseInt(document.getElementById('days').value);
             const spotRate = parseFloat(document.getElementById('spotRate').value);
-            const depositRate = parseFloat(document.getElementById('depositRate').value) / 100 || 0;
             const c1 = document.getElementById('currency1').value;
             const c2 = document.getElementById('currency2').value;
             
@@ -643,14 +640,16 @@
             const p1 = parseFloat(document.getElementById('principal1').value);
             const strike1 = parseFloat(document.getElementById('strikeRate1').value);
             const r1 = parseFloat(document.getElementById('annualRate1').value) / 100;
+            const depositRate1 = parseFloat(document.getElementById('depositRate1').value) / 100 || 0;
             
             const p2 = parseFloat(document.getElementById('principal2').value);
             const strike2 = parseFloat(document.getElementById('strikeRate2').value);
             const r2 = parseFloat(document.getElementById('annualRate2').value) / 100;
+            const depositRate2 = parseFloat(document.getElementById('depositRate2').value) / 100 || 0;
             
             // 计算定期存款利息对比
-            const depositInt1 = p1 * depositRate * (days / 365);
-            const depositInt2 = p2 * depositRate * (days / 365);
+            const depositInt1 = p1 * depositRate1 * (days / 365);
+            const depositInt2 = p2 * depositRate2 * (days / 365);
             
             // 组合 1：结构 B（看涨 c2），rate ≤ strike1 → 拿 c1 + 利息
             const int1 = p1 * r1 * (days / 365);
@@ -668,9 +667,9 @@
             document.getElementById('interest1').textContent = formatNumber(int1);
             document.getElementById('interest2').textContent = formatNumber(int2);
             
-            // 显示固定年收益率
-            document.getElementById('fixedYield1').textContent = (r1 * 100).toFixed(2);
-            document.getElementById('fixedYield2').textContent = (r2 * 100).toFixed(2);
+            // 显示 CLI 年化利率
+            document.getElementById('cliYield1').textContent = (r1 * 100).toFixed(2);
+            document.getElementById('cliYield2').textContent = (r2 * 100).toFixed(2);
             
             // 显示定期存款利息对比
             document.getElementById('depositInterest1').textContent = formatNumber(depositInt1);
@@ -946,9 +945,11 @@
                 principal1: document.getElementById('principal1').value,
                 strikeRate1: document.getElementById('strikeRate1').value,
                 annualRate1: document.getElementById('annualRate1').value,
+                depositRate1: document.getElementById('depositRate1').value,
                 principal2: document.getElementById('principal2').value,
                 strikeRate2: document.getElementById('strikeRate2').value,
                 annualRate2: document.getElementById('annualRate2').value,
+                depositRate2: document.getElementById('depositRate2').value,
                 rateRange: currentRateRange
             };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(params));
@@ -967,9 +968,11 @@
                 if (params.principal1) document.getElementById('principal1').value = params.principal1;
                 if (params.strikeRate1) document.getElementById('strikeRate1').value = parseFloat(params.strikeRate1).toFixed(4);
                 if (params.annualRate1) document.getElementById('annualRate1').value = params.annualRate1;
+                if (params.depositRate1) document.getElementById('depositRate1').value = params.depositRate1;
                 if (params.principal2) document.getElementById('principal2').value = params.principal2;
                 if (params.strikeRate2) document.getElementById('strikeRate2').value = parseFloat(params.strikeRate2).toFixed(4);
                 if (params.annualRate2) document.getElementById('annualRate2').value = params.annualRate2;
+                if (params.depositRate2) document.getElementById('depositRate2').value = params.depositRate2;
                 if (params.rateRange) {
                     currentRateRange = params.rateRange;
                     // 更新按钮状态
