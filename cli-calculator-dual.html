@@ -196,6 +196,7 @@
             .portfolio-card h3 { font-size: 15px; margin-bottom: 12px; }
             .input-grid { grid-template-columns: 1fr; gap: 10px; }
             .input-group input, .input-group select { padding: 10px 12px; font-size: 14px; }
+            .input-group label { font-size: 13px; margin-bottom: 6px; }
             .result-grid { grid-template-columns: 1fr; gap: 8px; }
             .result-item { padding: 14px; }
             .result-label { font-size: 11px; margin-bottom: 6px; }
@@ -212,6 +213,10 @@
             .calculate-btn { padding: 13px; font-size: 15px; border-radius: 8px; }
             .range-btn { padding: 8px 12px; font-size: 12px; min-height: 40px; }
             canvas { max-width: 100%; height: auto !important; }
+            /* 行使汇率按钮组移动端优化 */
+            .input-group button[onclick^="adjustStrike"] { padding: 10px 14px; font-size: 16px; min-width: 44px; }
+            .input-group button[onclick^="setStrike"] { padding: 12px; font-size: 14px; min-height: 44px; }
+        }
             button, input, select { -webkit-appearance: none; appearance: none; min-height: 44px; }
         }
         
@@ -282,7 +287,7 @@
                     <div class="input-grid">
                         <div class="input-group"><label>💵 本金</label><input type="number" id="principal1" value="50000" step="1000"></div>
                         <div class="input-group"><label>📈 CLI 年化利率 (%)</label><input type="number" id="annualRate1" value="6.5" step="0.1"></div>
-                        <div class="input-group"><label>🏦 定期存款年利率 (%)</label><input type="number" id="depositRate1" value="2.0" step="0.1" min="0"></div>
+                        <div class="input-group" style="grid-column: span 2;"><label>🏦 定期存款年利率 (%)</label><input type="number" id="depositRate1" value="2.0" step="0.1" min="0"></div>
                         <div class="input-group" style="grid-column: span 2;"><label>🎯 行使汇率 <span id="strikeDiff1" style="font-weight: 500; font-size: 13px; margin-left: 6px;"></span></label><div style="display: grid; grid-template-columns: 1fr auto auto; gap: 6px; align-items: end;"><input type="number" id="strikeRate1" value="7.2500" step="0.0001" style="width: 100%;" oninput="updateStrikeDiff1()"><button type="button" onclick="adjustStrike1(-0.001)" style="padding: 12px 16px; background: #f0f0f0; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: 600; white-space: nowrap;">−</button><button type="button" onclick="adjustStrike1(0.001)" style="padding: 12px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: 600; white-space: nowrap;">+</button></div></div>
                         <div class="input-group" style="grid-column: span 2;"><button type="button" onclick="setStrike1FromSpot()" style="padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%;">= 即期汇率</button></div>
                     </div>
@@ -293,7 +298,7 @@
                     <div class="input-grid">
                         <div class="input-group"><label>💵 本金</label><input type="number" id="principal2" value="50000" step="1000"></div>
                         <div class="input-group"><label>📈 CLI 年化利率 (%)</label><input type="number" id="annualRate2" value="6.5" step="0.1"></div>
-                        <div class="input-group"><label>🏦 定期存款年利率 (%)</label><input type="number" id="depositRate2" value="2.0" step="0.1" min="0"></div>
+                        <div class="input-group" style="grid-column: span 2;"><label>🏦 定期存款年利率 (%)</label><input type="number" id="depositRate2" value="2.0" step="0.1" min="0"></div>
                         <div class="input-group" style="grid-column: span 2;"><label>🎯 行使汇率 <span id="strikeDiff2" style="font-weight: 500; font-size: 13px; margin-left: 6px;"></span></label><div style="display: grid; grid-template-columns: 1fr auto auto; gap: 6px; align-items: end;"><input type="number" id="strikeRate2" value="7.2500" step="0.0001" style="width: 100%;" oninput="updateStrikeDiff2()"><button type="button" onclick="adjustStrike2(-0.001)" style="padding: 12px 16px; background: #f0f0f0; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: 600; white-space: nowrap;">−</button><button type="button" onclick="adjustStrike2(0.001)" style="padding: 12px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: 600; white-space: nowrap;">+</button></div></div>
                         <div class="input-group" style="grid-column: span 2;"><button type="button" onclick="setStrike2FromSpot()" style="padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%;">= 即期汇率</button></div>
                     </div>
