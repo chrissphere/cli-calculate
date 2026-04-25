@@ -282,7 +282,7 @@
                     <div class="input-grid">
                         <div class="input-group"><label>💵 本金</label><input type="number" id="principal1" value="50000" step="1000"></div>
                         <div class="input-group"><label>📈 CLI 年化利率 (%)</label><input type="number" id="annualRate1" value="6.5" step="0.1"></div>
-                        <div class="input-group" style="grid-column: span 2;"><label>🎯 行使汇率</label><div style="display: grid; grid-template-columns: 1fr auto auto; gap: 6px; align-items: end;"><input type="number" id="strikeRate1" value="7.2500" step="0.0001" style="width: 100%;"><button type="button" onclick="adjustStrike1(-0.001)" style="padding: 12px 16px; background: #f0f0f0; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: 600; white-space: nowrap;">−</button><button type="button" onclick="adjustStrike1(0.001)" style="padding: 12px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: 600; white-space: nowrap;">+</button></div></div>
+                        <div class="input-group" style="grid-column: span 2;"><label>🎯 行使汇率 <span id="strikeDiff1" style="font-weight: 500; font-size: 13px; margin-left: 6px;"></span></label><div style="display: grid; grid-template-columns: 1fr auto auto; gap: 6px; align-items: end;"><input type="number" id="strikeRate1" value="7.2500" step="0.0001" style="width: 100%;" oninput="updateStrikeDiff1()"><button type="button" onclick="adjustStrike1(-0.001)" style="padding: 12px 16px; background: #f0f0f0; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: 600; white-space: nowrap;">−</button><button type="button" onclick="adjustStrike1(0.001)" style="padding: 12px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: 600; white-space: nowrap;">+</button></div></div>
                         <div class="input-group" style="grid-column: span 2;"><button type="button" onclick="setStrike1FromSpot()" style="padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%;">= 即期汇率</button></div>
                     </div>
                 </div>
@@ -292,7 +292,7 @@
                     <div class="input-grid">
                         <div class="input-group"><label>💵 本金</label><input type="number" id="principal2" value="50000" step="1000"></div>
                         <div class="input-group"><label>📈 CLI 年化利率 (%)</label><input type="number" id="annualRate2" value="6.5" step="0.1"></div>
-                        <div class="input-group" style="grid-column: span 2;"><label>🎯 行使汇率</label><div style="display: grid; grid-template-columns: 1fr auto auto; gap: 6px; align-items: end;"><input type="number" id="strikeRate2" value="7.2500" step="0.0001" style="width: 100%;"><button type="button" onclick="adjustStrike2(-0.001)" style="padding: 12px 16px; background: #f0f0f0; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: 600; white-space: nowrap;">−</button><button type="button" onclick="adjustStrike2(0.001)" style="padding: 12px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: 600; white-space: nowrap;">+</button></div></div>
+                        <div class="input-group" style="grid-column: span 2;"><label>🎯 行使汇率 <span id="strikeDiff2" style="font-weight: 500; font-size: 13px; margin-left: 6px;"></span></label><div style="display: grid; grid-template-columns: 1fr auto auto; gap: 6px; align-items: end;"><input type="number" id="strikeRate2" value="7.2500" step="0.0001" style="width: 100%;" oninput="updateStrikeDiff2()"><button type="button" onclick="adjustStrike2(-0.001)" style="padding: 12px 16px; background: #f0f0f0; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: 600; white-space: nowrap;">−</button><button type="button" onclick="adjustStrike2(0.001)" style="padding: 12px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: 600; white-space: nowrap;">+</button></div></div>
                         <div class="input-group" style="grid-column: span 2;"><button type="button" onclick="setStrike2FromSpot()" style="padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%;">= 即期汇率</button></div>
                     </div>
                 </div>
@@ -461,20 +461,55 @@
             const c1 = document.getElementById('currency1').value;
             const c2 = document.getElementById('currency2').value;
             document.getElementById('spotRateLabel').textContent = `(${c1}/${c2})`;
+            // 即期汇率变化时，更新涨跌幅
+            updateStrikeDiff1();
+            updateStrikeDiff2();
         }
 
+        // 更新行使汇率相对于即期汇率的涨跌幅
+        function updateStrikeDiff1() {
+            const spot = parseFloat(document.getElementById('spotRate').value) || 0;
+            const strike = parseFloat(document.getElementById('strikeRate1').value) || 0;
+            const diffEl = document.getElementById('strikeDiff1');
+            if (spot === 0) {
+                diffEl.textContent = '';
+                return;
+            }
+            const pct = ((strike - spot) / spot) * 100;
+            const sign = pct >= 0 ? '+' : '';
+            const color = pct >= 0 ? '#dc3545' : '#28a745'; // 涨红跌绿
+            diffEl.textContent = `(${sign}${pct.toFixed(2)}%)`;
+            diffEl.style.color = color;
+        }
+        function updateStrikeDiff2() {
+            const spot = parseFloat(document.getElementById('spotRate').value) || 0;
+            const strike = parseFloat(document.getElementById('strikeRate2').value) || 0;
+            const diffEl = document.getElementById('strikeDiff2');
+            if (spot === 0) {
+                diffEl.textContent = '';
+                return;
+            }
+            const pct = ((strike - spot) / spot) * 100;
+            const sign = pct >= 0 ? '+' : '';
+            const color = pct >= 0 ? '#dc3545' : '#28a745'; // 涨红跌绿
+            diffEl.textContent = `(${sign}${pct.toFixed(2)}%)`;
+            diffEl.style.color = color;
+        }
+        
         // 调整行使汇率：按指定步长调整，保持 4 位小数
         function adjustStrike1(delta) {
             const input = document.getElementById('strikeRate1');
             let val = parseFloat(input.value) || 0;
             val = Math.round((val + delta) * 10000) / 10000;
             input.value = val.toFixed(4);
+            updateStrikeDiff1();
         }
         function adjustStrike2(delta) {
             const input = document.getElementById('strikeRate2');
             let val = parseFloat(input.value) || 0;
             val = Math.round((val + delta) * 10000) / 10000;
             input.value = val.toFixed(4);
+            updateStrikeDiff2();
         }
         
         // 格式化行使汇率：失去焦点时格式化为 4 位小数
@@ -488,10 +523,12 @@
         function setStrike1FromSpot() { 
             const val = document.getElementById('spotRate').value;
             document.getElementById('strikeRate1').value = parseFloat(val).toFixed(4);
+            updateStrikeDiff1();
         }
         function setStrike2FromSpot() { 
             const val = document.getElementById('spotRate').value;
             document.getElementById('strikeRate2').value = parseFloat(val).toFixed(4);
+            updateStrikeDiff2();
         }
 
         function swapCurrencies() {
@@ -925,6 +962,9 @@
         window.addEventListener('DOMContentLoaded', function() {
             loadParams();
             onCurrencyChange();
+            // 初始化涨跌幅显示
+            updateStrikeDiff1();
+            updateStrikeDiff2();
         });
         
         // 监听输入变化，自动保存
