@@ -281,7 +281,7 @@
                     <h3>📌 组合 1：<span id="portfolio1Label">USD 存款 + CNY 挂钩</span></h3>
                     <div class="input-grid">
                         <div class="input-group"><label>💵 本金</label><input type="number" id="principal1" value="50000" step="1000"></div>
-                        <div class="input-group"><label>🎯 行使汇率</label><input type="number" id="strikeRate1" value="7.2500" step="0.001" onblur="formatStrikeRate(this)"></div>
+                        <div class="input-group"><label>🎯 行使汇率</label><div style="display: flex; gap: 8px;"><input type="number" id="strikeRate1" value="7.2500" step="0.0001" style="flex: 1;"><button type="button" onclick="adjustStrike1(-0.001)" style="padding: 0 12px; background: #f0f0f0; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;">−</button><button type="button" onclick="adjustStrike1(0.001)" style="padding: 0 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;">+</button></div></div>
                         <div class="input-group"><label>📈 CLI 年化利率 (%)</label><input type="number" id="annualRate1" value="6.5" step="0.1"></div>
                         <div class="input-group"><button type="button" onclick="setStrike1FromSpot()" style="padding: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">= 即期汇率</button></div>
                     </div>
@@ -291,7 +291,7 @@
                     <h3>📌 组合 2：<span id="portfolio2Label">CNY 存款 + USD 挂钩</span></h3>
                     <div class="input-grid">
                         <div class="input-group"><label>💵 本金</label><input type="number" id="principal2" value="50000" step="1000"></div>
-                        <div class="input-group"><label>🎯 行使汇率</label><input type="number" id="strikeRate2" value="7.2500" step="0.001" onblur="formatStrikeRate(this)"></div>
+                        <div class="input-group"><label>🎯 行使汇率</label><div style="display: flex; gap: 8px;"><input type="number" id="strikeRate2" value="7.2500" step="0.0001" style="flex: 1;"><button type="button" onclick="adjustStrike2(-0.001)" style="padding: 0 12px; background: #f0f0f0; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;">−</button><button type="button" onclick="adjustStrike2(0.001)" style="padding: 0 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;">+</button></div></div>
                         <div class="input-group"><label>📈 CLI 年化利率 (%)</label><input type="number" id="annualRate2" value="6.5" step="0.1"></div>
                         <div class="input-group"><button type="button" onclick="setStrike2FromSpot()" style="padding: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">= 即期汇率</button></div>
                     </div>
@@ -463,6 +463,20 @@
             document.getElementById('spotRateLabel').textContent = `(${c1}/${c2})`;
         }
 
+        // 调整行使汇率：按指定步长调整，保持 4 位小数
+        function adjustStrike1(delta) {
+            const input = document.getElementById('strikeRate1');
+            let val = parseFloat(input.value) || 0;
+            val = Math.round((val + delta) * 10000) / 10000;
+            input.value = val.toFixed(4);
+        }
+        function adjustStrike2(delta) {
+            const input = document.getElementById('strikeRate2');
+            let val = parseFloat(input.value) || 0;
+            val = Math.round((val + delta) * 10000) / 10000;
+            input.value = val.toFixed(4);
+        }
+        
         // 格式化行使汇率：失去焦点时格式化为 4 位小数
         function formatStrikeRate(input) {
             let val = parseFloat(input.value);
