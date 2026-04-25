@@ -630,10 +630,12 @@
         }
 
         function formatNumber(num, decimals = 2) {
+            if (num === null || num === undefined || isNaN(num)) return '0';
             return num.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
         }
 
         function calculateDual() {
+            console.log('calculateDual started');
             const days = parseInt(document.getElementById('days').value);
             const spotRate = parseFloat(document.getElementById('spotRate').value);
             const c1 = document.getElementById('currency1').value;
@@ -748,7 +750,12 @@
         }
 
         function generateDualComparisonTable(p1, p2, days, r1, r2, depR1, depR2, spot, strike1, strike2, c1, c2) {
+            console.log('generateDualComparisonTable called', {p1, p2, days, r1, r2, depR1, depR2, spot, strike1, strike2, c1, c2});
             const tbody = document.getElementById('comparisonBodyDual');
+            if (!tbody) {
+                console.error('comparisonBodyDual not found!');
+                return;
+            }
             tbody.innerHTML = '';
             
             // 更新表头汇率标签
