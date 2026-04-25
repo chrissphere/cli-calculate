@@ -912,7 +912,7 @@
                 }
                 const plTotalC2 = pl1InC2 + pl2InC2ForTotal;
                 
-                const row = `<tr>
+                const rowHtml = `<tr>
                     <td>${changePct > 0 ? '+' : ''}${changePct.toFixed(1)}%</td>
                     <td>${rate.toFixed(4)}</td>
                     <td class="${trig1 ? 'loss' : 'profit'}">${trig1 ? '❌' : '✅'}</td>
@@ -924,7 +924,7 @@
                     <td class="${plTotalC1 >= 0 ? 'profit' : 'loss'}" style="font-size:11px;font-weight:600">${plTotalC1 >= 0 ? '+' : ''}${formatNumber(plTotalC1)}</td>
                     <td class="${plTotalC2 >= 0 ? 'profit' : 'loss'}" style="font-size:11px;font-weight:600">${plTotalC2 >= 0 ? '+' : ''}${formatNumber(plTotalC2)}</td>
                 </tr>`;
-                tbody.insertAdjacentHTML('beforeend', row);
+                tbody.insertAdjacentHTML('beforeend', rowHtml);
             }
         }
 
