@@ -764,7 +764,6 @@
             
             // 辅助函数：生成打和价行
             function createBreakEvenRow(beRate, label, bgColor) {
-                const beChangePct = ((beRate - spot) / spot) * 100;
                 const beTrig1 = beRate > strike1;
                 let beFinal1, beConv1;
                 if (beTrig1) {
@@ -816,11 +815,11 @@
                 // 检查是否需要在此行前插入打和价行
                 const nextRate = (i < 10) ? minRate + step * (i + 1) : rate + 1;
                 if (i < 10) {
-                    if (be2 >= rate && be2 < nextRate) {
-                        tbody.insertAdjacentHTML('beforeend', createBreakEvenRow(be2, '🎯 组合 2 打和价', '#d1ecf1'));
-                    }
                     if (be1 >= rate && be1 < nextRate) {
                         tbody.insertAdjacentHTML('beforeend', createBreakEvenRow(be1, '🎯 组合 1 打和价', '#fff3cd'));
+                    }
+                    if (be2 >= rate && be2 < nextRate) {
+                        tbody.insertAdjacentHTML('beforeend', createBreakEvenRow(be2, '🎯 组合 2 打和价', '#fff3cd'));
                     }
                 }
                 
