@@ -635,7 +635,6 @@
         }
 
         function calculateDual() {
-            console.log('calculateDual started');
             const days = parseInt(document.getElementById('days').value);
             const spotRate = parseFloat(document.getElementById('spotRate').value);
             const c1 = document.getElementById('currency1').value;
@@ -657,9 +656,6 @@
             // 更新汇总损益列的币种标签
             document.getElementById('totalPLCurrency1').textContent = c1;
             document.getElementById('totalPLCurrency2').textContent = c2;
-            // 更新表格中的定期存款利率显示
-            document.getElementById('tableDepositRate1').textContent = (depositRate1 * 100).toFixed(1);
-            document.getElementById('tableDepositRate2').textContent = (depositRate2 * 100).toFixed(1);
             
             // 计算定期存款利息对比
             const depositInt1 = p1 * depositRate1 * (days / 365);
@@ -750,12 +746,7 @@
         }
 
         function generateDualComparisonTable(p1, p2, days, r1, r2, depR1, depR2, spot, strike1, strike2, c1, c2) {
-            console.log('generateDualComparisonTable called', {p1, p2, days, r1, r2, depR1, depR2, spot, strike1, strike2, c1, c2});
             const tbody = document.getElementById('comparisonBodyDual');
-            if (!tbody) {
-                console.error('comparisonBodyDual not found!');
-                return;
-            }
             tbody.innerHTML = '';
             
             // 更新表头汇率标签
