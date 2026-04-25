@@ -568,6 +568,8 @@
                 // 自动同步到行使汇率
                 document.getElementById('strikeRate1').value = rate.toFixed(4);
                 document.getElementById('strikeRate2').value = rate.toFixed(4);
+                updateStrikeDiff1();
+                updateStrikeDiff2();
                 
                 setTimeout(() => { 
                     statusEl.textContent = `市场汇率：1 ${c1} = ${rate.toFixed(4)} ${c2}`;
@@ -603,6 +605,8 @@
                     updateSpotRateLabel();
                     document.getElementById('strikeRate1').value = rate.toFixed(4);
                     document.getElementById('strikeRate2').value = rate.toFixed(4);
+                    updateStrikeDiff1();
+                    updateStrikeDiff2();
                 } else {
                     statusEl.textContent = `❌ 暂不支持 ${c1}/${c2}，请手动输入`;
                     statusEl.style.color = '#dc3545';
