@@ -758,9 +758,71 @@
             const maxRate = spot * (1 + currentRateRange);
             const step = (maxRate - minRate) / 10;
             
+            // 计算打和价
+            const be1 = strike1 * (1 + r1 * (days / 365));
+            const be2 = strike2 / (1 + r2 * (days / 365));
+            
+            // 辅助函数：生成打和价行
+            function createBreakEvenRow(beRate, label, bgColor) {
+                const beChangePct = ((beRate - spot) / spot) * 100;
+                const beTrig1 = beRate > strike1;
+                let beFinal1, beConv1;
+                if (beTrig1) {
+                    beFinal1 = p1 * strike1;
+                    beConv1 = beFinal1 / beRate;
+                } else {
+                    beFinal1 = p1 + p1 * r1 * (days / 365);
+                    beConv1 = beFinal1;
+                }
+                const beDepFinal1 = p1 + p1 * depR1 * (days / 365);
+                const bePl1 = beConv1 - beDepFinal1;
+                
+                const beTrig2 = beRate < strike2;
+                let beFinal2, beConv2;
+                if (beTrig2) {
+                    beFinal2 = p2 / strike2;
+                    beConv2 = beFinal2 * beRate;
+                } else {
+                    beFinal2 = p2 + p2 * r2 * (days / 365);
+                    beConv2 = beFinal2;
+                }
+                const beDepFinal2 = p2 + p2 * depR2 * (days / 365);
+                const bePl2 = beConv2 - beDepFinal2;
+                
+                let bePl2InC1 = beTrig2 ? bePl2 : bePl2 / beRate;
+                const bePlTotalC1 = bePl1 + bePl2InC1;
+                let bePl1InC2 = beTrig1 ? bePl1 : bePl1 * beRate;
+                let bePl2InC2 = beTrig2 ? bePl2 * beRate : bePl2;
+                const bePlTotalC2 = bePl1InC2 + bePl2InC2;
+                
+                return `<tr style="background: ${bgColor}; font-weight: 600;">
+                    <td>${label}</td>
+                    <td>${beRate.toFixed(4)}</td>
+                    <td class="${beTrig1 ? 'loss' : 'profit'}">${beTrig1 ? '❌' : '✅'}</td>
+                    <td>${formatNumber(beFinal1)}<br><small>${beTrig1 ? c2 : c1}</small></td>
+                    <td class="${bePl1 >= 0 ? 'profit' : 'loss'}" style="font-size:11px">${bePl1 >= 0 ? '+' : ''}${formatNumber(bePl1)}</td>
+                    <td class="${beTrig2 ? 'loss' : 'profit'}">${beTrig2 ? '❌' : '✅'}</td>
+                    <td>${formatNumber(beFinal2)}<br><small>${beTrig2 ? c1 : c2}</small></td>
+                    <td class="${bePl2 >= 0 ? 'profit' : 'loss'}" style="font-size:11px">${bePl2 >= 0 ? '+' : ''}${formatNumber(bePl2)}</td>
+                    <td class="${bePlTotalC1 >= 0 ? 'profit' : 'loss'}" style="font-size:11px;font-weight:600">${bePlTotalC1 >= 0 ? '+' : ''}${formatNumber(bePlTotalC1)}</td>
+                    <td class="${bePlTotalC2 >= 0 ? 'profit' : 'loss'}" style="font-size:11px;font-weight:600">${bePlTotalC2 >= 0 ? '+' : ''}${formatNumber(bePlTotalC2)}</td>
+                </tr>`;
+            }
+            
             for (let i = 0; i <= 10; i++) {
                 const rate = minRate + step * i;
                 const changePct = ((rate - spot) / spot) * 100;
+                
+                // 检查是否需要在此行前插入打和价行
+                const nextRate = (i < 10) ? minRate + step * (i + 1) : rate + 1;
+                if (i < 10) {
+                    if (be2 >= rate && be2 < nextRate) {
+                        tbody.insertAdjacentHTML('beforeend', createBreakEvenRow(be2, '🎯 组合 2 打和价', '#d1ecf1'));
+                    }
+                    if (be1 >= rate && be1 < nextRate) {
+                        tbody.insertAdjacentHTML('beforeend', createBreakEvenRow(be1, '🎯 组合 1 打和价', '#fff3cd'));
+                    }
+                }
                 
                 // 组合 1：结构 B，rate ≤ strike1 → 不触发
                 const trig1 = rate > strike1;
@@ -837,100 +899,6 @@
                 </tr>`;
                 tbody.insertAdjacentHTML('beforeend', row);
             }
-            
-            // 添加组合 1 打和价行
-            const be1 = strike1 * (1 + r1 * (days / 365));
-            const be1ChangePct = ((be1 - spot) / spot) * 100;
-            const be1Trig1 = be1 > strike1;
-            let be1Final1, be1Conv1;
-            if (be1Trig1) {
-                be1Final1 = p1 * strike1;
-                be1Conv1 = be1Final1 / be1;
-            } else {
-                be1Final1 = p1 + p1 * r1 * (days / 365);
-                be1Conv1 = be1Final1;
-            }
-            const be1DepFinal1 = p1 + p1 * depR1 * (days / 365);
-            const be1Pl1 = be1Conv1 - be1DepFinal1;
-            
-            const be1Trig2 = be1 < strike2;
-            let be1Final2, be1Conv2;
-            if (be1Trig2) {
-                be1Final2 = p2 / strike2;
-                be1Conv2 = be1Final2 * be1;
-            } else {
-                be1Final2 = p2 + p2 * r2 * (days / 365);
-                be1Conv2 = be1Final2;
-            }
-            const be1DepFinal2 = p2 + p2 * depR2 * (days / 365);
-            const be1Pl2 = be1Conv2 - be1DepFinal2;
-            
-            let be1Pl2InC1 = be1Trig2 ? be1Pl2 : be1Pl2 / be1;
-            const be1PlTotalC1 = be1Pl1 + be1Pl2InC1;
-            let be1Pl1InC2 = be1Trig1 ? be1Pl1 : be1Pl1 * be1;
-            let be1Pl2InC2 = be1Trig2 ? be1Pl2 * be1 : be1Pl2;
-            const be1PlTotalC2 = be1Pl1InC2 + be1Pl2InC2;
-            
-            const be1Row = `<tr style="background: #fff3cd; font-weight: 600;">
-                <td>🎯 组合 1 打和价</td>
-                <td>${be1.toFixed(4)}</td>
-                <td class="${be1Trig1 ? 'loss' : 'profit'}">${be1Trig1 ? '❌' : '✅'}</td>
-                <td>${formatNumber(be1Final1)}<br><small>${be1Trig1 ? c2 : c1}</small></td>
-                <td class="${be1Pl1 >= 0 ? 'profit' : 'loss'}" style="font-size:11px">${be1Pl1 >= 0 ? '+' : ''}${formatNumber(be1Pl1)}</td>
-                <td class="${be1Trig2 ? 'loss' : 'profit'}">${be1Trig2 ? '❌' : '✅'}</td>
-                <td>${formatNumber(be1Final2)}<br><small>${be1Trig2 ? c1 : c2}</small></td>
-                <td class="${be1Pl2 >= 0 ? 'profit' : 'loss'}" style="font-size:11px">${be1Pl2 >= 0 ? '+' : ''}${formatNumber(be1Pl2)}</td>
-                <td class="${be1PlTotalC1 >= 0 ? 'profit' : 'loss'}" style="font-size:11px;font-weight:600">${be1PlTotalC1 >= 0 ? '+' : ''}${formatNumber(be1PlTotalC1)}</td>
-                <td class="${be1PlTotalC2 >= 0 ? 'profit' : 'loss'}" style="font-size:11px;font-weight:600">${be1PlTotalC2 >= 0 ? '+' : ''}${formatNumber(be1PlTotalC2)}</td>
-            </tr>`;
-            tbody.insertAdjacentHTML('beforeend', be1Row);
-            
-            // 添加组合 2 打和价行
-            const be2 = strike2 / (1 + r2 * (days / 365));
-            const be2ChangePct = ((be2 - spot) / spot) * 100;
-            const be2Trig1 = be2 > strike1;
-            let be2Final1, be2Conv1;
-            if (be2Trig1) {
-                be2Final1 = p1 * strike1;
-                be2Conv1 = be2Final1 / be2;
-            } else {
-                be2Final1 = p1 + p1 * r1 * (days / 365);
-                be2Conv1 = be2Final1;
-            }
-            const be2DepFinal1 = p1 + p1 * depR1 * (days / 365);
-            const be2Pl1 = be2Conv1 - be2DepFinal1;
-            
-            const be2Trig2 = be2 < strike2;
-            let be2Final2, be2Conv2;
-            if (be2Trig2) {
-                be2Final2 = p2 / strike2;
-                be2Conv2 = be2Final2 * be2;
-            } else {
-                be2Final2 = p2 + p2 * r2 * (days / 365);
-                be2Conv2 = be2Final2;
-            }
-            const be2DepFinal2 = p2 + p2 * depR2 * (days / 365);
-            const be2Pl2 = be2Conv2 - be2DepFinal2;
-            
-            let be2Pl2InC1 = be2Trig2 ? be2Pl2 : be2Pl2 / be2;
-            const be2PlTotalC1 = be2Pl1 + be2Pl2InC1;
-            let be2Pl1InC2 = be2Trig1 ? be2Pl1 : be2Pl1 * be2;
-            let be2Pl2InC2 = be2Trig2 ? be2Pl2 * be2 : be2Pl2;
-            const be2PlTotalC2 = be2Pl1InC2 + be2Pl2InC2;
-            
-            const be2Row = `<tr style="background: #d1ecf1; font-weight: 600;">
-                <td>🎯 组合 2 打和价</td>
-                <td>${be2.toFixed(4)}</td>
-                <td class="${be2Trig1 ? 'loss' : 'profit'}">${be2Trig1 ? '❌' : '✅'}</td>
-                <td>${formatNumber(be2Final1)}<br><small>${be2Trig1 ? c2 : c1}</small></td>
-                <td class="${be2Pl1 >= 0 ? 'profit' : 'loss'}" style="font-size:11px">${be2Pl1 >= 0 ? '+' : ''}${formatNumber(be2Pl1)}</td>
-                <td class="${be2Trig2 ? 'loss' : 'profit'}">${be2Trig2 ? '❌' : '✅'}</td>
-                <td>${formatNumber(be2Final2)}<br><small>${be2Trig2 ? c1 : c2}</small></td>
-                <td class="${be2Pl2 >= 0 ? 'profit' : 'loss'}" style="font-size:11px">${be2Pl2 >= 0 ? '+' : ''}${formatNumber(be2Pl2)}</td>
-                <td class="${be2PlTotalC1 >= 0 ? 'profit' : 'loss'}" style="font-size:11px;font-weight:600">${be2PlTotalC1 >= 0 ? '+' : ''}${formatNumber(be2PlTotalC1)}</td>
-                <td class="${be2PlTotalC2 >= 0 ? 'profit' : 'loss'}" style="font-size:11px;font-weight:600">${be2PlTotalC2 >= 0 ? '+' : ''}${formatNumber(be2PlTotalC2)}</td>
-            </tr>`;
-            tbody.insertAdjacentHTML('beforeend', be2Row);
         }
 
         function drawDualRateProfitChart(p1, p2, days, r1, r2, depR1, depR2, spot, strike1, strike2, c1, c2) {
