@@ -635,6 +635,7 @@
         }
 
         function calculateDual() {
+            try {
             const days = parseInt(document.getElementById('days').value);
             const spotRate = parseFloat(document.getElementById('spotRate').value);
             const c1 = document.getElementById('currency1').value;
@@ -713,6 +714,11 @@
             document.getElementById('chartPrincipalCurrency2').textContent = c2;
             
             // 初始化汇率范围按钮状态
+            } catch (e) {
+                console.error('calculateDual error:', e);
+                alert('计算出错：' + e.message);
+            }
+        }
             document.querySelectorAll('.range-btn').forEach(btn => {
                 btn.classList.remove('active');
                 if (parseFloat(btn.dataset.range) === currentRateRange * 100) {
