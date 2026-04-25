@@ -335,7 +335,7 @@
             
             <div class="card">
                 <div class="card-title">📈 汇率 - 收益对照表（组合 1 & 组合 2）</div>
-                <div class="info-tip" style="margin-bottom: 15px;">💡 两个组合使用同一个 <span id="tableRateLabel">USD/CNY</span> 汇率，但行使汇率独立设置 | 汇总损益列显示具体币种名称</div>
+                <div class="info-tip" style="margin-bottom: 15px;">💡 两个组合使用同一个 <span id="tableRateLabel">USD/CNY</span> 汇率，但行使汇率独立设置 | 损益显示相对于各自定期存款的超额收益（组合 1 定期利率 <span id="tableDepositRate1">2.0</span>% | 组合 2 定期利率 <span id="tableDepositRate2">2.0</span>%）</div>
                 
                 <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
                     <label style="font-weight: 600; font-size: 13px;">📊 汇率变动幅度：</label>
@@ -376,7 +376,7 @@
             <div class="card">
                 <div class="card-title">📈 汇率 - 收益关系图（组合 1 & 组合 2）</div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <div class="info-tip" style="margin: 0;">💡 图表显示 <span id="chartRateLabel">USD/CNY</span> 汇率变化对两个组合收益的影响</div>
+                    <div class="info-tip" style="margin: 0;">💡 图表显示 <span id="chartRateLabel">USD/CNY</span> 汇率变化对两个组合收益的影响（相对于各自定期存款的超额收益）</div>
                     <button type="button" onclick="toggleChartCurrency()" id="chartCurrencyBtn" style="padding: 8px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; white-space: nowrap;">🔄 切换到 USD 显示</button>
                 </div>
                 <div style="height: 450px; position: relative;">
@@ -636,6 +636,9 @@
             // 更新汇总损益列的币种标签
             document.getElementById('totalPLCurrency1').textContent = c1;
             document.getElementById('totalPLCurrency2').textContent = c2;
+            // 更新表格中的定期存款利率显示
+            document.getElementById('tableDepositRate1').textContent = (depositRate1 * 100).toFixed(1);
+            document.getElementById('tableDepositRate2').textContent = (depositRate2 * 100).toFixed(1);
             
             const p1 = parseFloat(document.getElementById('principal1').value);
             const strike1 = parseFloat(document.getElementById('strikeRate1').value);
@@ -690,8 +693,8 @@
             // 更新图表标签
             document.getElementById('chartRateLabel').textContent = `${c1}/${c2}`;
             
-            generateDualComparisonTable(p1, p2, days, r1, r2, spotRate, strike1, strike2, c1, c2);
-            drawDualRateProfitChart(p1, p2, days, r1, r2, spotRate, strike1, strike2, c1, c2);
+            generateDualComparisonTable(p1, p2, days, r1, r2, depositRate1, depositRate2, spotRate, strike1, strike2, c1, c2);
+            drawDualRateProfitChart(p1, p2, days, r1, r2, depositRate1, depositRate2, spotRate, strike1, strike2, c1, c2);
             
             document.getElementById('resultSection').style.display = 'block';
             document.getElementById('resultSection').classList.add('show');
@@ -738,7 +741,7 @@
             }
         }
 
-        function generateDualComparisonTable(p1, p2, days, r1, r2, spot, strike1, strike2, c1, c2) {
+        function generateDualComparisonTable(p1, p2, days, r1, r2, depR1, depR2, spot, strike1, strike2, c1, c2) {
             const tbody = document.getElementById('comparisonBodyDual');
             tbody.innerHTML = '';
             
@@ -748,7 +751,6 @@
             const minRate = spot * (1 - currentRateRange);
             const maxRate = spot * (1 + currentRateRange);
             const step = (maxRate - minRate) / 10;
-            const regRate = 0.025;
             
             for (let i = 0; i <= 10; i++) {
                 const rate = minRate + step * i;
@@ -764,8 +766,9 @@
                     final1 = p1 + p1 * r1 * (days / 365);
                     conv1 = final1;
                 }
-                const reg1 = p1 + p1 * regRate * (days / 365);
-                const pl1 = conv1 - reg1;
+                // 定期存款对比（组合 1）
+                const depFinal1 = p1 + p1 * depR1 * (days / 365);
+                const pl1 = conv1 - depFinal1;
                 
                 // 组合 2：结构 B，rate ≥ strike2 → 不触发（看涨 c1）
                 const trig2 = rate < strike2;
@@ -780,8 +783,9 @@
                     final2 = p2 + p2 * r2 * (days / 365);
                     conv2 = final2;
                 }
-                const reg2 = p2 + p2 * regRate * (days / 365);
-                const pl2 = conv2 - reg2;
+                // 定期存款对比（组合 2）
+                const depFinal2 = p2 + p2 * depR2 * (days / 365);
+                const pl2 = conv2 - depFinal2;
                 
                 // 汇总损益 1：以组合 1 存款币种（c1）计算
                 let pl2InC1;
@@ -829,7 +833,7 @@
             }
         }
 
-        function drawDualRateProfitChart(p1, p2, days, r1, r2, spot, strike1, strike2, c1, c2) {
+        function drawDualRateProfitChart(p1, p2, days, r1, r2, depR1, depR2, spot, strike1, strike2, c1, c2) {
             const ctx = document.getElementById('rateProfitChartDual').getContext('2d');
             if (rateProfitChartDual) rateProfitChartDual.destroy();
             
@@ -847,7 +851,9 @@
                 // 组合 1
                 const int1 = p1 * r1 * (days / 365);
                 let f1 = rate <= strike1 ? p1 + int1 : p1 * strike1 / rate;
-                let profit1 = f1 - p1;
+                // 定期存款对比（组合 1）
+                const depF1 = p1 + p1 * depR1 * (days / 365);
+                let profit1 = f1 - depF1;
                 
                 // 组合 2：c2 存款，触发时 c2 被换成 c1
                 const int2 = p2 * r2 * (days / 365);
@@ -859,7 +865,9 @@
                     const c1Amount = p2 / strike2; // c2 ÷ strike = c1
                     f2 = c1Amount * rate; // c1 × rate = c2（用到期汇率）
                 }
-                let profit2 = f2 - p2;
+                // 定期存款对比（组合 2）
+                const depF2 = p2 + p2 * depR2 * (days / 365);
+                let profit2 = f2 - depF2;
                 
                 // 根据显示币种转换收益
                 if (chartDisplayCurrency === 'c1') {
