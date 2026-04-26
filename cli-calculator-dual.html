@@ -456,6 +456,8 @@
             document.getElementById('currency1').value = c2;
             document.getElementById('currency2').value = c1;
             onCurrencyChange();
+            // 交换后立即获取新汇率
+            fetchLiveRateDual();
         }
 
         function updateLabels() {
