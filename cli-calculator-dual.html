@@ -464,14 +464,27 @@
             const c1 = document.getElementById('currency1').value;
             const c2 = document.getElementById('currency2').value;
             // 组合名称格式：组合{存款币种/看涨币种}
-            document.getElementById('portfolio1Label').textContent = `组合${c1}/${c2}`;
-            document.getElementById('portfolio2Label').textContent = `组合${c2}/${c1}`;
-            document.getElementById('interestCurrency1').textContent = c1;
-            document.getElementById('interestCurrency2').textContent = c2;
-            document.getElementById('currency1Label').textContent = c1;
-            document.getElementById('currency2Label').textContent = c2;
-            document.getElementById('totalCurrency1').textContent = c1;
-            document.getElementById('totalCurrency2').textContent = c2;
+            const el1 = document.getElementById('portfolio1Label');
+            const el2 = document.getElementById('portfolio2Label');
+            const cur1Label = document.getElementById('currency1Label');
+            const cur2Label = document.getElementById('currency2Label');
+            const totalCur1 = document.getElementById('totalCurrency1');
+            const totalCur2 = document.getElementById('totalCurrency2');
+            const depCur1 = document.getElementById('depositCurrency1');
+            const depCur2 = document.getElementById('depositCurrency2');
+            const totalPLCur1 = document.getElementById('totalPLCurrency1');
+            const totalPLCur2 = document.getElementById('totalPLCurrency2');
+            
+            if (el1) el1.textContent = `组合${c1}/${c2}`;
+            if (el2) el2.textContent = `组合${c2}/${c1}`;
+            if (cur1Label) cur1Label.textContent = c1;
+            if (cur2Label) cur2Label.textContent = c2;
+            if (totalCur1) totalCur1.textContent = c1;
+            if (totalCur2) totalCur2.textContent = c2;
+            if (depCur1) depCur1.textContent = c1;
+            if (depCur2) depCur2.textContent = c2;
+            if (totalPLCur1) totalPLCur1.textContent = c1;
+            if (totalPLCur2) totalPLCur2.textContent = c2;
         }
 
         function updateSpotRateLabel() {
