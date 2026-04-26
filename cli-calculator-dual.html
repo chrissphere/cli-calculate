@@ -548,14 +548,6 @@
             updateStrikeDiff2();
         }
 
-        function swapCurrencies() {
-            const c1 = document.getElementById('currency1').value;
-            const c2 = document.getElementById('currency2').value;
-            document.getElementById('currency1').value = c2;
-            document.getElementById('currency2').value = c1;
-            onCurrencyChange();
-        }
-
         async function fetchLiveRateDual() {
             const c1 = document.getElementById('currency1').value;
             const c2 = document.getElementById('currency2').value;
